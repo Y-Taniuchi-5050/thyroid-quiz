@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>甲状腺知識チェック｜臨床検査技師向け</title>
+  <style>
+    :root {
+      --primary:       #2b7a78;
+      --primary-light: #3aafa9;
+      --primary-dark:  #17252a;
+      --beginner:      #38a169;
+      --middle:        #3182ce;
+      --advanced:      #805ad5;
+      --correct:       #38a169;
+      --wrong:         #e53e3e;
+      --bg:            #f0f7f7;
+      --card:          #ffffff;
+      --text:          #2d3748;
+      --muted:         #718096;
+      --border:        #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .screen { display: none; width: 100%; max-width: 620px; }
+    .screen.active { display: flex; flex-direction: column; align-items: center; }
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 36px 32px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    /* ── メニュー画面 ── */
+    .menu-icon { font-size: 72px; text-align: center; margin-bottom: 12px; }
+    .menu-label {
+      font-size: 12px; font-weight: bold; letter-spacing: 3px;
+      color: var(--primary); text-align: center; margin-bottom: 6px;
+    }
+    .menu-title {
+      font-size: 24px; font-weight: bold;
+      color: var(--text); text-align: center; margin-bottom: 24px;
+    }
+
+    /* レベル選択ボタン */
+    .level-btn {
+      width: 100%; padding: 18px 24px;
+      border: 2px solid var(--border);
+      border-radius: 16px; background: var(--bg);
+      text-align: left; cursor: pointer;
+      margin-bottom: 12px;
+      transition: border-color 0.2s, background 0.2s, transform 0.1s;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .level-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .level-btn:active { transform: translateY(0); }
+    .level-icon { font-size: 36px; flex-shrink: 0; }
+    .level-info { flex: 1; }
+    .level-name { font-size: 17px; font-weight: bold; margin-bottom: 3px; }
+    .level-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .level-badge {
+      font-size: 11px; font-weight: bold;
+      padding: 3px 10px; border-radius: 999px; flex-shrink: 0;
+    }
+
+    .btn-beginner { border-color: #c6f6d5; }
+    .btn-beginner:hover { border-color: var(--beginner); background: #f0fff4; }
+    .btn-beginner .level-name { color: var(--beginner); }
+    .btn-beginner .level-badge { background: #c6f6d5; color: var(--beginner); }
+
+    .btn-middle { border-color: #bee3f8; }
+    .btn-middle:hover { border-color: var(--middle); background: #ebf8ff; }
+    .btn-middle .level-name { color: var(--middle); }
+    .btn-middle .level-badge { background: #bee3f8; color: var(--middle); }
+
+    .btn-advanced { border-color: #e9d8fd; }
+    .btn-advanced:hover { border-color: var(--advanced); background: #faf5ff; }
+    .btn-advanced .level-name { color: var(--advanced); }
+    .btn-advanced .level-badge { background: #e9d8fd; color: var(--advanced); }
+
+    .menu-note {
+      background: var(--bg); border-radius: 12px;
+      padding: 14px 18px; font-size: 12px;
+      color: var(--muted); line-height: 1.7; margin-top: 8px;
+    }
+
+    /* ── スタート確認画面 ── */
+    .start-icon { font-size: 64px; text-align: center; margin-bottom: 12px; }
+    .start-level-badge {
+      display: inline-block; font-size: 13px; font-weight: bold;
+      padding: 4px 16px; border-radius: 999px; margin-bottom: 12px;
+    }
+    .start-title {
+      font-size: 22px; font-weight: bold;
+      color: var(--text); margin-bottom: 16px; line-height: 1.4;
+    }
+    .start-info {
+      background: var(--bg); border-radius: 12px;
+      padding: 16px 20px; font-size: 13px;
+      color: var(--muted); line-height: 1.9; margin-bottom: 24px;
+    }
+    .start-info strong { color: var(--text); }
+    .btn-row { display: flex; gap: 12px; }
+    .back-btn {
+      flex: 1; padding: 14px;
+      background: none; border: 2px solid var(--border);
+      border-radius: 12px; font-size: 15px;
+      color: var(--muted); cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .back-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ── クイズ画面 ── */
+    .quiz-header { width: 100%; margin-bottom: 16px; }
+    .progress-info {
+      display: flex; justify-content: space-between;
+      font-size: 13px; color: rgba(255,255,255,0.9);
+      margin-bottom: 8px; font-weight: bold;
+    }
+    .progress-bg {
+      width: 100%; height: 8px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 999px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: white;
+      border-radius: 999px; transition: width 0.4s ease; width: 0%;
+    }
+
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .q-badge {
+      font-size: 12px; font-weight: bold;
+      padding: 3px 12px; border-radius: 999px;
+      background: #e6fffa; color: var(--primary);
+    }
+    .q-category {
+      font-size: 12px; font-weight: bold;
+      padding: 3px 12px; border-radius: 999px;
+      background: #f3e8ff; color: #6b21a8;
+    }
+    .q-type-badge {
+      font-size: 12px; font-weight: bold;
+      padding: 3px 12px; border-radius: 999px;
+      background: #fff7ed; color: #c2410c;
+    }
+    .q-level-badge {
+      font-size: 12px; font-weight: bold;
+      padding: 3px 12px; border-radius: 999px;
+    }
+    .q-text {
+      font-size: 17px; font-weight: bold;
+      color: var(--text); line-height: 1.7;
+      margin-bottom: 24px; min-height: 60px;
+    }
+
+    /* ○×ボタン */
+    .ox-btns { display: flex; gap: 16px; justify-content: center; margin-bottom: 20px; }
+    .ox-btn {
+      width: 110px; height: 110px; border-radius: 50%; border: none;
+      font-size: 48px; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .ox-btn:hover { transform: scale(1.08); }
+    .ox-btn:active { transform: scale(0.95); }
+    .btn-maru  { background: #fff5f5; color: var(--wrong); }
+    .btn-batsu { background: #f0fff4; color: var(--correct); }
+    .ox-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    .ox-btn.hl-correct { background: #c6f6d5; box-shadow: 0 0 0 4px var(--correct); }
+    .ox-btn.hl-wrong   { background: #fed7d7; box-shadow: 0 0 0 4px var(--wrong); }
+
+    /* 4択ボタン */
+    .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .choice-btn {
+      width: 100%; padding: 14px 18px; text-align: left;
+      background: var(--bg); border: 2px solid var(--border);
+      border-radius: 12px; font-size: 14px; color: var(--text);
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      line-height: 1.5;
+    }
+    .choice-btn:hover:not(:disabled) { border-color: var(--primary-light); background: #e6fffa; }
+    .choice-btn:disabled { cursor: not-allowed; }
+    .choice-btn.sel-correct { background: #c6f6d5; border-color: var(--correct); color: #276749; font-weight: bold; }
+    .choice-btn.sel-wrong   { background: #fed7d7; border-color: var(--wrong); color: #c53030; }
+    .choice-btn.show-correct { background: #c6f6d5; border-color: var(--correct); }
+
+    /* フィードバック */
+    .feedback {
+      display: none; padding: 16px 20px;
+      border-radius: 14px; margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+    .feedback.show { display: block; }
+    .feedback.correct { background: #f0fff4; border-left: 4px solid var(--correct); }
+    .feedback.wrong   { background: #fff5f5; border-left: 4px solid var(--wrong); }
+    .fb-result { font-size: 18px; font-weight: bold; margin-bottom: 6px; }
+    .feedback.correct .fb-result { color: var(--correct); }
+    .feedback.wrong   .fb-result { color: var(--wrong); }
+    .fb-exp { font-size: 14px; color: var(--text); line-height: 1.7; }
+
+    /* 次へボタン */
+    .next-btn {
+      display: none; width: 100%; padding: 14px;
+      background: var(--primary); color: white;
+      border: none; border-radius: 12px;
+      font-size: 16px; font-weight: bold;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .next-btn.show { display: block; }
+    .next-btn:hover { opacity: 0.88; }
+
+    /* ── 結果画面 ── */
+    .result-icon  { font-size: 72px; text-align: center; margin-bottom: 12px; }
+    .result-level { text-align: center; margin-bottom: 8px; }
+    .result-title { font-size: 26px; font-weight: bold; color: var(--text); text-align: center; margin-bottom: 16px; }
+    .result-score { font-size: 60px; font-weight: bold; color: var(--primary); text-align: center; line-height: 1; }
+    .result-denom { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 20px; }
+    .result-bar-wrap { margin-bottom: 20px; }
+    .result-bar-bg { width: 100%; height: 12px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 6px; }
+    .result-bar-fill { height: 100%; border-radius: 999px; transition: width 1s ease; width: 0%; }
+    .result-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+    .result-msg {
+      background: var(--bg); border-radius: 12px;
+      padding: 16px 20px; font-size: 15px;
+      color: var(--text); line-height: 1.7;
+      margin-bottom: 24px; text-align: center;
+    }
+    .review-title { font-size: 13px; font-weight: bold; color: var(--muted); margin-bottom: 10px; letter-spacing: 1px; }
+    .review-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .review-mark { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .review-q { color: var(--text); line-height: 1.5; }
+
+    /* 共通ボタン */
+    .primary-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white; border: none; border-radius: 12px;
+      font-size: 17px; font-weight: bold;
+      cursor: pointer; margin-top: 12px;
+      transition: opacity 0.2s;
+    }
+    .primary-btn:hover { opacity: 0.9; }
+    .outline-btn {
+      width: 100%; padding: 12px;
+      background: none; border: 2px solid var(--border);
+      border-radius: 12px; font-size: 15px;
+      color: var(--muted); cursor: pointer; margin-top: 8px;
+      transition: border-color 0.2s;
+    }
+    .outline-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ── ログイン画面（追加機能①） ── */
+    .login-icon { font-size: 72px; text-align: center; margin-bottom: 12px; }
+    /* 入力欄のラベル */
+    .field-label {
+      display: block; font-size: 13px; font-weight: bold;
+      color: var(--text); margin-bottom: 6px;
+    }
+    /* 名前入力用テキストフィールド */
+    .text-field {
+      width: 100%; padding: 14px 16px;
+      border: 2px solid var(--border); border-radius: 12px;
+      background: var(--bg); color: var(--text);
+      font-size: 16px; font-family: inherit;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .text-field:focus { outline: none; border-color: var(--primary); background: #ffffff; }
+    /* 未入力時に赤く光らせるための状態クラス */
+    .text-field.input-error { border-color: var(--wrong); background: #fff5f5; }
+    /* エラーメッセージ（通常は非表示、.show で表示） */
+    .error-msg {
+      display: none; margin-top: 8px;
+      background: #fff5f5; border-left: 4px solid var(--wrong);
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 13px; color: var(--wrong); line-height: 1.6;
+    }
+    .error-msg.show { display: block; animation: fadeIn 0.3s ease; }
+
+    /* ── ユーザーバー（メニュー画面に出す「ようこそ」表示） ── */
+    .user-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 18px;
+      background: var(--bg); border-radius: 12px;
+      padding: 10px 14px; font-size: 13px; color: var(--muted);
+    }
+    .user-bar strong { color: var(--primary); font-size: 14px; word-break: break-all; }
+    /* 小さめの丸ボタン（ログアウト・戻る用） */
+    .mini-btn {
+      background: none; border: 1px solid var(--border); border-radius: 999px;
+      padding: 5px 12px; font-size: 12px; color: var(--muted);
+      cursor: pointer; flex-shrink: 0; font-family: inherit;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .mini-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ── スコア履歴画面（追加機能②） ── */
+    .history-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 10px; margin-bottom: 16px;
+    }
+    .history-title { font-size: 20px; font-weight: bold; color: var(--text); }
+    .history-count { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    /* 件数が増えてもカードが伸びすぎないようスクロールさせる */
+    .history-list { max-height: 420px; overflow-y: auto; margin-bottom: 8px; }
+    .history-item {
+      display: flex; align-items: center; gap: 12px;
+      border: 2px solid var(--border); border-radius: 14px;
+      padding: 12px 14px; margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+    .history-item:hover { border-color: var(--primary-light); }
+    .history-main { flex: 1; min-width: 0; }
+    .history-name { font-size: 14px; font-weight: bold; color: var(--text); margin-bottom: 4px; word-break: break-all; }
+    .history-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .history-date { font-size: 11px; color: var(--muted); }
+    .history-score { font-size: 22px; font-weight: bold; flex-shrink: 0; text-align: right; }
+    .history-score small { display: block; font-size: 11px; color: var(--muted); font-weight: normal; }
+    /* 履歴が0件のときのプレースホルダ */
+    .history-empty {
+      background: var(--bg); border-radius: 12px;
+      padding: 28px 20px; margin-bottom: 8px;
+      text-align: center; font-size: 13px;
+      color: var(--muted); line-height: 1.9;
+    }
+    /* 削除など取り消せない操作用のボタン */
+    .danger-btn {
+      width: 100%; padding: 12px; background: none;
+      border: 2px solid #fed7d7; border-radius: 12px;
+      font-size: 14px; color: var(--wrong); cursor: pointer;
+      margin-top: 8px; font-family: inherit;
+      transition: background 0.2s;
+    }
+    .danger-btn:hover { background: #fff5f5; }
+
+    /* ── 管理画面（追加機能：管理者用） ── */
+    /* 画面上部の見出し行（タイトル＋戻るボタン） */
+    .admin-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 10px; margin-bottom: 18px;
+    }
+    .admin-title { font-size: 20px; font-weight: bold; color: var(--text); }
+    .admin-sub   { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+    /* 管理メニューの大きなボタン（レベル選択ボタンと同じ雰囲気にそろえる） */
+    .admin-menu-btn {
+      width: 100%; display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px; margin-bottom: 12px;
+      background: var(--bg); border: 2px solid var(--border); border-radius: 16px;
+      text-align: left; cursor: pointer; font-family: inherit;
+      transition: border-color 0.2s, background 0.2s, transform 0.1s;
+    }
+    .admin-menu-btn:hover { border-color: var(--primary); background: #e6fffa; transform: translateY(-2px); }
+    .admin-menu-icon { font-size: 30px; flex-shrink: 0; }
+    .admin-menu-name { font-size: 16px; font-weight: bold; color: var(--text); margin-bottom: 2px; }
+    .admin-menu-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* 集計パネル（登録数・公開数・非公開数） */
+    .admin-stats { display: flex; gap: 10px; margin-bottom: 18px; }
+    .stat-box { flex: 1; background: var(--bg); border-radius: 12px; padding: 12px 8px; text-align: center; }
+    .stat-num { font-size: 22px; font-weight: bold; color: var(--primary); line-height: 1.2; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── フォーム部品（問題追加・編集画面） ── */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block; font-size: 13px; font-weight: bold;
+      color: var(--text); margin-bottom: 7px;
+    }
+    .form-label .req { color: var(--wrong); font-size: 11px; margin-left: 6px; }
+    .form-input, .form-textarea {
+      width: 100%; padding: 12px 14px;
+      border: 2px solid var(--border); border-radius: 12px;
+      background: var(--bg); color: var(--text);
+      font-size: 14px; font-family: inherit; line-height: 1.6;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-textarea { resize: vertical; min-height: 88px; }
+    .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); background: #ffffff; }
+    .form-hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+
+    /* セグメントボタン（形式・レベル・正解の選択に共通で使う） */
+    .seg-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .seg-btn {
+      flex: 1; min-width: 84px; padding: 11px 8px;
+      border: 2px solid var(--border); border-radius: 12px;
+      background: var(--bg); color: var(--muted);
+      font-size: 13px; font-weight: bold; font-family: inherit;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .seg-btn:hover { border-color: var(--primary-light); }
+    /* 選択中のボタンだけ色を変える */
+    .seg-btn.selected { border-color: var(--primary); background: #e6fffa; color: var(--primary); }
+
+    /* 選択肢A〜Dの入力行（記号＋テキスト欄） */
+    .choice-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .choice-key {
+      width: 30px; height: 30px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: var(--bg);
+      font-size: 13px; font-weight: bold; color: var(--primary);
+    }
+
+    /* 公開／非公開の切り替えスイッチ */
+    .switch-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; background: var(--bg); border-radius: 12px; padding: 14px 16px;
+    }
+    .switch-text { font-size: 13px; font-weight: bold; color: var(--text); }
+    .switch-desc { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+    .switch {
+      width: 56px; height: 30px; flex-shrink: 0; padding: 0;
+      border: none; border-radius: 999px; background: #cbd5e0;
+      cursor: pointer; position: relative; transition: background 0.25s;
+    }
+    .switch.on { background: var(--correct); }
+    /* ::after が丸いつまみ。.on のときだけ右へスライドさせる */
+    .switch::after {
+      content: ""; position: absolute; top: 3px; left: 3px;
+      width: 24px; height: 24px; border-radius: 50%; background: #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25); transition: transform 0.25s;
+    }
+    .switch.on::after { transform: translateX(26px); }
+
+    /* ── 問題一覧 ── */
+    .admin-level-head {
+      display: flex; align-items: center; gap: 8px;
+      margin: 20px 0 10px; padding-bottom: 6px;
+      border-bottom: 2px solid var(--border);
+    }
+    .admin-level-head:first-child { margin-top: 0; }
+    .admin-level-name { font-size: 14px; font-weight: bold; color: var(--text); }
+    .admin-level-note { font-size: 11px; color: var(--muted); margin-left: auto; text-align: right; }
+    .qitem { border: 2px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+    /* 非公開の問題は薄く表示して一目で分かるようにする */
+    .qitem.is-hidden { opacity: 0.6; background: #fafafa; }
+    .qitem-top { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+    .qitem-text { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 10px; word-break: break-word; }
+    .qitem-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 999px; }
+    .tag-pub   { background: #c6f6d5; color: #276749; }
+    .tag-unpub { background: #e2e8f0; color: #718096; }
+    .mini-action {
+      flex: 1; min-width: 88px; padding: 8px 6px;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: #ffffff; color: var(--muted);
+      font-size: 12px; font-weight: bold; font-family: inherit;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .mini-action:hover { border-color: var(--primary); color: var(--primary); }
+    .mini-action.act-del:hover { border-color: var(--wrong); color: var(--wrong); background: #fff5f5; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 480px) {
+      .card { padding: 24px 16px; }
+      .ox-btn { width: 90px; height: 90px; font-size: 40px; }
+      .q-text { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ⓪ ログイン画面（追加機能①：アプリ起動時に最初に表示される画面） -->
+<div class="screen active" id="screen-login">
+  <div class="card">
+    <div class="login-icon">🦋</div>
+    <p class="menu-label">THYROID KNOWLEDGE CHECK</p>
+    <h1 class="menu-title">甲状腺 知識チェック<br><span style="font-size:16px;color:var(--muted);font-weight:normal;">臨床検査技師向け</span></h1>
+
+    <!-- 名前の入力欄。Enterキーでも「はじめる」と同じ動作をさせる -->
+    <label class="field-label" for="input-name">お名前を入力してください</label>
+    <input type="text" id="input-name" class="text-field"
+           placeholder="例：検査 太郎" maxlength="20" autocomplete="off"
+           onkeydown="if (event.key === 'Enter') doLogin();"
+           oninput="clearLoginError();">
+
+    <!-- 名前が未入力のときだけ表示されるエラーメッセージ -->
+    <div class="error-msg" id="login-error"></div>
+
+    <button class="primary-btn" onclick="doLogin()">▶ はじめる</button>
+    <button class="outline-btn" onclick="openHistory('login')">📊 スコア履歴を見る</button>
+    <button class="outline-btn" onclick="openAdminLogin('login')">🔑 管理者ログイン</button>
+
+    <div class="menu-note" style="margin-top:16px;">
+      💾 入力した名前とスコアは、このブラウザの中（localStorage）だけに保存されます。<br>
+      外部のサーバーには送信されません。
+    </div>
+  </div>
+</div>
+
+<!-- ① メニュー画面 -->
+<div class="screen" id="screen-menu">
+  <div class="card">
+    <!-- ログイン中のユーザー名を表示するバー（追加機能①） -->
+    <div class="user-bar">
+      <span>👤 ようこそ、<strong id="menu-user-name"></strong> さん</span>
+      <span style="display:flex; gap:6px; flex-shrink:0;">
+        <button class="mini-btn" onclick="openAdminLogin('menu')">🔑 管理</button>
+        <button class="mini-btn" onclick="logout()">ログアウト</button>
+      </span>
+    </div>
+
+    <div class="menu-icon">🦋</div>
+    <p class="menu-label">THYROID KNOWLEDGE CHECK</p>
+    <h1 class="menu-title">甲状腺 知識チェック<br><span style="font-size:16px;color:var(--muted);font-weight:normal;">臨床検査技師向け</span></h1>
+
+    <button class="level-btn btn-beginner" onclick="selectLevel('beginner')">
+      <span class="level-icon">🟢</span>
+      <div class="level-info">
+        <div class="level-name">初級レベル</div>
+        <div class="level-desc">新人・学生向け｜基礎・解剖・ホルモン・疾患・検査手技<br>全<span id="menu-count-beginner">30</span>問（○×・4択 混合）</div>
+      </div>
+      <span class="level-badge" style="background:#c6f6d5;color:#276749;">BASIC</span>
+    </button>
+
+    <button class="level-btn btn-middle" onclick="selectLevel('middle')">
+      <span class="level-icon">🔵</span>
+      <div class="level-info">
+        <div class="level-name">中級レベル</div>
+        <div class="level-desc">経験2〜5年向け｜ホルモン代謝・検査干渉・疾患管理<br>全<span id="menu-count-middle">30</span>問（○×・4択 混合）</div>
+      </div>
+      <span class="level-badge" style="background:#bee3f8;color:#2b6cb0;">INTERMEDIATE</span>
+    </button>
+
+    <button class="level-btn btn-advanced" onclick="selectLevel('advanced')">
+      <span class="level-icon">🟣</span>
+      <div class="level-info">
+        <div class="level-name">上級レベル</div>
+        <div class="level-desc">ベテラン・専門向け｜分子機序・測定干渉・最新知見<br>全<span id="menu-count-advanced">30</span>問（○×・4択 混合）</div>
+      </div>
+      <span class="level-badge" style="background:#e9d8fd;color:#6b21a8;">ADVANCED</span>
+    </button>
+
+    <button class="outline-btn" style="margin-top:4px;margin-bottom:14px;" onclick="openHistory('menu')">📊 スコア履歴を見る</button>
+
+    <div class="menu-note">
+      📋 各レベル全30問・制限時間なし<br>
+      正誤判定と解説付き・終了後に振り返りリストを表示します
+    </div>
+  </div>
+</div>
+
+<!-- ② スタート確認画面 -->
+<div class="screen" id="screen-start">
+  <div class="card" style="text-align:center;">
+    <div class="start-icon" id="start-icon">🦋</div>
+    <div><span class="start-level-badge" id="start-badge"></span></div>
+    <h2 class="start-title" id="start-title"></h2>
+    <div class="start-info" id="start-info"></div>
+    <div class="btn-row">
+      <button class="back-btn" onclick="goMenu()">← 戻る</button>
+      <button class="primary-btn" style="margin-top:0;" onclick="startQuiz()">▶ スタート</button>
+    </div>
+  </div>
+</div>
+
+<!-- ③ クイズ画面 -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-header">
+    <div class="progress-info">
+      <span id="progress-text">問題 1 / 30</span>
+      <span id="score-text">正解：0問</span>
+    </div>
+    <div class="progress-bg"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+  <div class="card">
+    <div class="q-meta">
+      <span class="q-badge"    id="q-number"></span>
+      <span class="q-category" id="q-category"></span>
+      <span class="q-type-badge" id="q-type"></span>
+      <span class="q-level-badge" id="q-level-badge"></span>
+    </div>
+    <p class="q-text" id="q-text"></p>
+
+    <div class="ox-btns" id="ox-area">
+      <button class="ox-btn btn-maru"  id="btn-maru"  onclick="answerOX(true)">⭕</button>
+      <button class="ox-btn btn-batsu" id="btn-batsu" onclick="answerOX(false)">❌</button>
+    </div>
+    <div class="choices" id="choice-area" style="display:none;"></div>
+
+    <div class="feedback" id="feedback">
+      <div class="fb-result" id="fb-result"></div>
+      <div class="fb-exp"    id="fb-exp"></div>
+    </div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">次の問題へ →</button>
+  </div>
+</div>
+
+<!-- ④ 結果画面 -->
+<div class="screen" id="screen-result">
+  <div class="card">
+    <div class="result-icon"  id="result-icon">🎉</div>
+    <div class="result-level"><span class="start-level-badge" id="result-badge"></span></div>
+    <h2 class="result-title"  id="result-title"></h2>
+    <div class="result-score" id="result-score"></div>
+    <p class="result-denom" id="result-denom">/ 30問 正解</p>
+    <div class="result-bar-wrap">
+      <div class="result-bar-bg">
+        <div class="result-bar-fill" id="result-bar" style="background: var(--primary);"></div>
+      </div>
+      <div class="result-bar-label"><span>0%</span><span id="result-pct"></span><span>100%</span></div>
+    </div>
+    <div class="result-msg" id="result-msg"></div>
+    <div class="review-title">📋 問題の振り返り</div>
+    <div id="review-items" style="margin-bottom:16px;"></div>
+    <button class="primary-btn" onclick="goMenu()">🏠 レベル選択に戻る</button>
+    <button class="outline-btn" onclick="restartSameLevel()">🔄 同じレベルをもう一度</button>
+    <button class="outline-btn" onclick="openHistory('menu')">📊 スコア履歴を見る</button>
+  </div>
+</div>
+
+
+<!-- ⑤ スコア履歴画面（追加機能②） -->
+<div class="screen" id="screen-history">
+  <div class="card">
+    <div class="history-head">
+      <div>
+        <div class="history-title">📊 スコア履歴</div>
+        <div class="history-count" id="history-count"></div>
+      </div>
+      <button class="mini-btn" onclick="backFromHistory()">← 戻る</button>
+    </div>
+
+    <!-- ここに保存済みスコアを JavaScript で描画する -->
+    <div class="history-list" id="history-list"></div>
+
+    <button class="primary-btn" onclick="backFromHistory()">← 戻る</button>
+    <button class="danger-btn" onclick="clearHistory()">🗑 履歴をすべて削除</button>
+  </div>
+</div>
+
+<!-- ⑥ 管理者ログイン画面 -->
+<div class="screen" id="screen-admin-login">
+  <div class="card">
+    <div class="login-icon">🔑</div>
+    <p class="menu-label">ADMIN LOGIN</p>
+    <h1 class="menu-title">管理者ログイン</h1>
+
+    <div class="form-group">
+      <label class="form-label" for="admin-id">管理者ID</label>
+      <!-- Enterキーでパスワード欄へ移動する -->
+      <input type="text" id="admin-id" class="form-input" placeholder="admin" autocomplete="off"
+             onkeydown="if (event.key === 'Enter') document.getElementById('admin-pw').focus();"
+             oninput="clearAdminError();">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="admin-pw">パスワード</label>
+      <!-- Enterキーでそのままログインする -->
+      <input type="password" id="admin-pw" class="form-input" placeholder="••••••••" autocomplete="off"
+             onkeydown="if (event.key === 'Enter') adminLogin();"
+             oninput="clearAdminError();">
+    </div>
+
+    <!-- 認証に失敗したときのエラーメッセージ -->
+    <div class="error-msg" id="admin-error"></div>
+
+    <button class="primary-btn" onclick="adminLogin()">🔓 ログイン</button>
+    <button class="outline-btn" onclick="exitAdmin()">← 戻る</button>
+  </div>
+</div>
+
+<!-- ⑦ 管理メニュー画面 -->
+<div class="screen" id="screen-admin-menu">
+  <div class="card">
+    <div class="admin-head">
+      <div>
+        <div class="admin-title">🛠 管理メニュー</div>
+        <div class="admin-sub">問題の追加・編集・公開設定ができます</div>
+      </div>
+      <button class="mini-btn" onclick="adminLogout()">ログアウト</button>
+    </div>
+
+    <!-- 登録状況のサマリー（数値は JavaScript で入れる） -->
+    <div class="admin-stats">
+      <div class="stat-box"><div class="stat-num" id="stat-total">0</div><div class="stat-label">登録問題数</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-pub">0</div><div class="stat-label">公開中</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-unpub">0</div><div class="stat-label">非公開</div></div>
+    </div>
+
+    <button class="admin-menu-btn" onclick="openAdminList()">
+      <span class="admin-menu-icon">📋</span>
+      <div>
+        <div class="admin-menu-name">問題一覧</div>
+        <div class="admin-menu-desc">登録済み問題の編集・削除・公開切替</div>
+      </div>
+    </button>
+
+    <!-- 引数が null のときは「新規追加」モードで編集画面を開く -->
+    <button class="admin-menu-btn" onclick="openAdminEdit(null)">
+      <span class="admin-menu-icon">➕</span>
+      <div>
+        <div class="admin-menu-name">新しい問題を追加</div>
+        <div class="admin-menu-desc">○×形式・4択形式の問題を作成します</div>
+      </div>
+    </button>
+
+    <button class="outline-btn" onclick="exitAdmin()">🏠 クイズ画面に戻る</button>
+  </div>
+</div>
+
+<!-- ⑧ 問題一覧画面 -->
+<div class="screen" id="screen-admin-list">
+  <div class="card">
+    <div class="admin-head">
+      <div>
+        <div class="admin-title">📋 問題一覧</div>
+        <div class="admin-sub" id="admin-list-sub"></div>
+      </div>
+      <button class="mini-btn" onclick="backToAdminMenu()">← 戻る</button>
+    </div>
+
+    <!-- ここにレベル別の問題リストを JavaScript で描画する -->
+    <div id="admin-list-body"></div>
+
+    <button class="primary-btn" onclick="openAdminEdit(null)">➕ 新しい問題を追加</button>
+    <button class="outline-btn" onclick="backToAdminMenu()">← 管理メニューに戻る</button>
+  </div>
+</div>
+
+<!-- ⑨ 問題追加・編集画面（追加と編集で同じ画面を使い回す） -->
+<div class="screen" id="screen-admin-edit">
+  <div class="card">
+    <div class="admin-head">
+      <div>
+        <div class="admin-title" id="edit-title">➕ 問題の追加</div>
+        <div class="admin-sub"   id="edit-sub">必要な項目を入力して保存してください</div>
+      </div>
+      <button class="mini-btn" onclick="cancelAdminEdit()">← 戻る</button>
+    </div>
+
+    <!-- 形式選択：○× か 4択 か -->
+    <div class="form-group">
+      <label class="form-label">出題形式<span class="req">必須</span></label>
+      <div class="seg-row">
+        <button type="button" class="seg-btn" id="seg-type-ox" onclick="setEditType('ox')">⭕❌ ○×形式</button>
+        <button type="button" class="seg-btn" id="seg-type-mc" onclick="setEditType('mc')">🔤 4択形式</button>
+      </div>
+    </div>
+
+    <!-- レベル選択：初級・中級・上級 -->
+    <div class="form-group">
+      <label class="form-label">レベル<span class="req">必須</span></label>
+      <div class="seg-row">
+        <button type="button" class="seg-btn" id="seg-level-beginner" onclick="setEditLevel('beginner')">🟢 初級</button>
+        <button type="button" class="seg-btn" id="seg-level-middle"   onclick="setEditLevel('middle')">🔵 中級</button>
+        <button type="button" class="seg-btn" id="seg-level-advanced" onclick="setEditLevel('advanced')">🟣 上級</button>
+      </div>
+    </div>
+
+    <!-- テーマ（既存問題の category と同じ役割） -->
+    <div class="form-group">
+      <label class="form-label" for="edit-category">テーマ<span class="req">必須</span></label>
+      <input type="text" id="edit-category" class="form-input" placeholder="例：基礎・解剖／検査干渉" maxlength="20">
+      <div class="form-hint">クイズ画面の紫色のバッジに表示されます。</div>
+    </div>
+
+    <!-- 問題文 -->
+    <div class="form-group">
+      <label class="form-label" for="edit-text">問題文<span class="req">必須</span></label>
+      <textarea id="edit-text" class="form-textarea" placeholder="例：TSHは下垂体前葉から分泌されるホルモンである。"></textarea>
+    </div>
+
+    <!-- 選択肢A〜D：4択形式を選んだときだけ表示される -->
+    <div class="form-group" id="edit-choices-group">
+      <label class="form-label">選択肢A〜D<span class="req">必須</span></label>
+      <div class="choice-row"><span class="choice-key">A</span><input type="text" id="edit-choice-0" class="form-input" placeholder="選択肢A"></div>
+      <div class="choice-row"><span class="choice-key">B</span><input type="text" id="edit-choice-1" class="form-input" placeholder="選択肢B"></div>
+      <div class="choice-row"><span class="choice-key">C</span><input type="text" id="edit-choice-2" class="form-input" placeholder="選択肢C"></div>
+      <div class="choice-row"><span class="choice-key">D</span><input type="text" id="edit-choice-3" class="form-input" placeholder="選択肢D"></div>
+    </div>
+
+    <!-- 正解：形式に応じて ○×用と4択用を出し分ける -->
+    <div class="form-group">
+      <label class="form-label">正解<span class="req">必須</span></label>
+      <div class="seg-row" id="edit-answer-ox">
+        <button type="button" class="seg-btn" id="seg-ans-true"  onclick="setEditAnswer(true)">⭕ 正しい</button>
+        <button type="button" class="seg-btn" id="seg-ans-false" onclick="setEditAnswer(false)">❌ 誤り</button>
+      </div>
+      <div class="seg-row" id="edit-answer-mc">
+        <button type="button" class="seg-btn" id="seg-ans-0" onclick="setEditAnswer(0)">A</button>
+        <button type="button" class="seg-btn" id="seg-ans-1" onclick="setEditAnswer(1)">B</button>
+        <button type="button" class="seg-btn" id="seg-ans-2" onclick="setEditAnswer(2)">C</button>
+        <button type="button" class="seg-btn" id="seg-ans-3" onclick="setEditAnswer(3)">D</button>
+      </div>
+    </div>
+
+    <!-- 解説 -->
+    <div class="form-group">
+      <label class="form-label" for="edit-explanation">解説<span class="req">必須</span></label>
+      <textarea id="edit-explanation" class="form-textarea" placeholder="回答後に表示される解説文を入力します。"></textarea>
+    </div>
+
+    <!-- 公開／非公開の切り替えスイッチ -->
+    <div class="form-group">
+      <div class="switch-row">
+        <div>
+          <div class="switch-text" id="switch-label">公開する</div>
+          <div class="switch-desc">公開中の問題だけがクイズ本体で出題されます。</div>
+        </div>
+        <button type="button" class="switch" id="edit-switch" onclick="toggleEditPublished()" aria-label="公開／非公開の切り替え"></button>
+      </div>
+    </div>
+
+    <!-- 入力漏れがあったときのエラーメッセージ -->
+    <div class="error-msg" id="edit-error"></div>
+
+    <button class="primary-btn" onclick="saveAdminQuestion()">💾 保存</button>
+    <button class="outline-btn" onclick="cancelAdminEdit()">キャンセル</button>
+  </div>
+</div>
+
+<script>
+// ===========================
+// 初級問題データ（30問）
+// ===========================
+const questionsBeg = [
+  { category:"基礎・解剖", type:"ox",
+    text:"甲状腺は首の前面に位置し、気管の前方を取り囲むように存在する蝶形（バタフライ型）の臓器である。",
+    answer:true,
+    explanation:"○ 甲状腺は気管の前面に位置し、左右の葉と峡部からなる蝶形の臓器です。正常では触診で触れにくいほど小さな臓器です。" },
+  { category:"基礎・解剖", type:"mc",
+    text:"甲状腺ホルモンの合成に必要な必須ミネラルはどれですか？",
+    choices:["カルシウム（Ca）","ヨウ素（I）","マグネシウム（Mg）","亜鉛（Zn）"],
+    answer:1,
+    explanation:"ヨウ素（I）が正解です。甲状腺ホルモン（T3・T4）の構造にはヨウ素が不可欠で、ヨウ素不足は甲状腺腫（ゴイター）の原因となります。" },
+  { category:"基礎・生理", type:"ox",
+    text:"TSH（甲状腺刺激ホルモン）は甲状腺から分泌されるホルモンである。",
+    answer:false,
+    explanation:"× TSHは下垂体前葉から分泌されます。視床下部→TRH→下垂体前葉→TSH→甲状腺→T3・T4 というフィードバック機構が基本です。" },
+  { category:"基礎・生理", type:"mc",
+    text:"甲状腺ホルモンのうち、活性型（生物学的活性が強い）はどれですか？",
+    choices:["T4（サイロキシン）","T3（トリヨードサイロニン）","TSH","TRH"],
+    answer:1,
+    explanation:"T3が正解です。T4は末梢組織で脱ヨウ素化されてT3に変換されます。T3はT4の約3〜5倍の生物活性を持ちます。" },
+  { category:"基礎・生理", type:"ox",
+    text:"甲状腺ホルモンは基礎代謝を促進し、心拍数・体温・エネルギー消費量を上昇させる働きがある。",
+    answer:true,
+    explanation:"○ 甲状腺ホルモンの主な作用です。機能亢進症では動悸・発汗・体重減少が起こり、機能低下症では倦怠感・浮腫・体重増加が起こります。" },
+  { category:"基礎・解剖", type:"mc",
+    text:"甲状腺の傍濾胞細胞（C細胞）から分泌されるホルモンはどれですか？",
+    choices:["T3","T4","カルシトニン","PTH（副甲状腺ホルモン）"],
+    answer:2,
+    explanation:"カルシトニンが正解です。C細胞から分泌されるカルシトニンは血中カルシウムを低下させます。甲状腺髄様がんの腫瘍マーカーとしても重要です。" },
+  { category:"基礎・生理", type:"ox",
+    text:"甲状腺ホルモンの分泌は、血中T3・T4が増加するとネガティブフィードバックによりTSHの分泌が抑制される。",
+    answer:true,
+    explanation:"○ T3・T4↑→TSH↓、T3・T4↓→TSH↑という関係が成立します。この関係を理解することが検査値解釈の基本です。" },
+  { category:"基礎・解剖", type:"mc",
+    text:"正常成人の甲状腺の重さはおよそどのくらいですか？",
+    choices:["1〜5g","10〜20g","50〜60g","100g以上"],
+    answer:1,
+    explanation:"10〜20gが正解です。正常成人の甲状腺は約10〜20gで、エコーでは左右各葉の体積を測定します。20gを超えると甲状腺腫と判断されることがあります。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"TSHの基準値は施設により異なるが、一般的に約0.5〜5.0 μIU/mLが正常範囲とされることが多い。",
+    answer:true,
+    explanation:"○ TSHの基準値はおおよそ0.5〜5.0 μIU/mL程度が正常範囲とされます。自施設の基準値の確認が重要です。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"甲状腺機能亢進症（バセドウ病など）の典型的な検査値の組み合わせはどれですか？",
+    choices:["TSH↑、FT4↑、FT3↑","TSH↓、FT4↑、FT3↑","TSH↑、FT4↓、FT3↓","TSH↓、FT4↓、FT3↓"],
+    answer:1,
+    explanation:"TSH↓、FT4↑、FT3↑が正解です。甲状腺ホルモンが過剰に分泌されるため、ネガティブフィードバックによりTSHが低下します。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"FT4（遊離サイロキシン）は、血中で甲状腺ホルモン結合タンパクと結合していない「遊離型」のT4を測定する。",
+    answer:true,
+    explanation:"○ 血中T4の大部分はTBGなどに結合しています。FT4はその遊離型であり、生物活性を持つ部分を反映します。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"甲状腺機能低下症の典型的な検査値の組み合わせはどれですか？",
+    choices:["TSH↓、FT4↓","TSH↑、FT4↑","TSH↑、FT4↓","TSH↓、FT4↑"],
+    answer:2,
+    explanation:"TSH↑、FT4↓が正解です。甲状腺ホルモンが不足するため、下垂体がTSHを多く分泌して甲状腺を刺激しようとします。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"サイログロブリン（Tg）は甲状腺がんの手術後の再発モニタリングに使用される腫瘍マーカーである。",
+    answer:true,
+    explanation:"○ 甲状腺全摘後にTgが上昇する場合は再発・転移を示唆します。分化型甲状腺がん（乳頭がん・濾胞がん）の経過観察に重要です。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"バセドウ病の診断に特異的な自己抗体はどれですか？",
+    choices:["抗TPO抗体","TSH受容体抗体（TRAb）","抗Tg抗体","抗核抗体（ANA）"],
+    answer:1,
+    explanation:"TSH受容体抗体（TRAb）が正解です。TRAbはTSH受容体を刺激して甲状腺ホルモンの過剰産生を引き起こします。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"妊娠初期にはhCGがTSH受容体を刺激するため、TSHが一時的に低下することがある。",
+    answer:true,
+    explanation:"○ 妊娠初期のhCGはTSH受容体に弱い刺激を与えるため、TSHが低下することがあります。妊娠中の検査値解釈では時期を考慮することが重要です。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"橋本病（慢性甲状腺炎）で最もよく陽性になる自己抗体の組み合わせはどれですか？",
+    choices:["TRAb・抗核抗体","抗TPO抗体・抗Tg抗体","抗ds-DNA抗体・TRAb","カルシトニン・CEA"],
+    answer:1,
+    explanation:"抗TPO抗体・抗Tg抗体が正解です。橋本病ではこれらの自己抗体が高率に陽性になります。" },
+  { category:"疾患", type:"ox",
+    text:"バセドウ病は甲状腺機能亢進症を呈する自己免疫疾患で、眼球突出（眼症）を伴うことがある。",
+    answer:true,
+    explanation:"○ バセドウ病の三大症状は「甲状腺腫・頻脈・眼球突出」です。眼症はTSH受容体抗体が眼窩組織に作用することで起こります。" },
+  { category:"疾患", type:"mc",
+    text:"橋本病（慢性甲状腺炎）について正しいものはどれですか？",
+    choices:["男性に多い","機能は常に低下している","女性に多く初期は機能正常なことも多い","ウイルス感染が直接の原因"],
+    answer:2,
+    explanation:"女性に多く、初期は機能正常なことも多いが正解です。長年の経過で機能低下症に移行しますが、初期は正常なことも多いです。" },
+  { category:"疾患", type:"ox",
+    text:"亜急性甲状腺炎は細菌感染が原因で起こり、抗生物質による治療が必要である。",
+    answer:false,
+    explanation:"× 亜急性甲状腺炎はウイルス感染後に起こる非化膿性炎症で、抗生物質は無効です。多くは自然軽快します。" },
+  { category:"疾患", type:"mc",
+    text:"甲状腺がんで最も発生頻度が高い組織型はどれですか？",
+    choices:["髄様がん","未分化がん","乳頭がん","濾胞がん"],
+    answer:2,
+    explanation:"乳頭がんが正解です。甲状腺がんの約80〜90%を占める最多の組織型です。予後は比較的良好です。" },
+  { category:"疾患", type:"ox",
+    text:"甲状腺機能低下症の症状として、体重増加・倦怠感・便秘・皮膚乾燥・寒がりなどがある。",
+    answer:true,
+    explanation:"○ 甲状腺ホルモンの低下により代謝が低下するため、これらの症状が現れます。粘液水腫も特徴的です。" },
+  { category:"疾患", type:"mc",
+    text:"無痛性甲状腺炎について正しい記述はどれですか？",
+    choices:["甲状腺に強い圧痛がある","産後や薬剤投与後に起こることがある","バセドウ病と病態は同じ","TRAbが高値になる"],
+    answer:1,
+    explanation:"産後や薬剤投与後に起こることがあるが正解です。TRAbは陰性で、バセドウ病との鑑別に重要です。" },
+  { category:"疾患", type:"ox",
+    text:"甲状腺髄様がんの腫瘍マーカーとして、カルシトニンとCEAが有用である。",
+    answer:true,
+    explanation:"○ 髄様がんはC細胞由来で、カルシトニンとCEAが腫瘍マーカーとして用いられます。" },
+  { category:"疾患", type:"mc",
+    text:"甲状腺機能亢進症の症状として誤っているものはどれですか？",
+    choices:["体重減少","頻脈・動悸","発汗増加","寒がり（冷え性）"],
+    answer:3,
+    explanation:"寒がりが誤りです。機能亢進症では代謝が亢進して暑がり・発汗増加が起こります。寒がりは機能低下症の症状です。" },
+  { category:"検査手技", type:"ox",
+    text:"甲状腺エコー検査は放射線被曝がなく、非侵襲的に甲状腺の大きさ・形態・結節の性状を評価できる検査である。",
+    answer:true,
+    explanation:"○ 超音波検査は被曝がなく、リアルタイムに観察できます。甲状腺の評価に非常に優れた検査です。" },
+  { category:"検査手技", type:"mc",
+    text:"甲状腺ホルモン（TSH・FT4・FT3）の検査に用いる採血管として適切なのはどれですか？",
+    choices:["EDTA入り（紫キャップ）","クエン酸入り（黒・青キャップ）","血清分離管（赤・黄キャップ）","フッ化ナトリウム入り（グレーキャップ）"],
+    answer:2,
+    explanation:"血清分離管（赤・黄キャップ）が正解です。甲状腺ホルモン検査は血清を用います。施設により採血管の色は異なる場合があります。" },
+  { category:"検査手技", type:"ox",
+    text:"甲状腺エコーで「低エコー」の結節は、悪性の可能性が高いとされる所見の一つである。",
+    answer:true,
+    explanation:"○ 低エコー・不整形辺縁・微細石灰化などは悪性を示唆するエコー所見です。確定診断にはFNABが必要です。" },
+  { category:"検査手技", type:"mc",
+    text:"甲状腺の穿刺吸引細胞診（FNAB）について正しいものはどれですか？",
+    choices:["全身麻酔が必要","超音波ガイド下に細い針で細胞を採取する","放射性ヨウ素を使う","入院が必須"],
+    answer:1,
+    explanation:"超音波ガイド下に細い針で細胞を採取する検査が正解です。局所麻酔または麻酔なしで行う外来検査です。" },
+  { category:"検査手技", type:"ox",
+    text:"甲状腺シンチグラフィ（RI検査）では、放射性ヨウ素やテクネチウムを用いて甲状腺の機能的分布を画像化する。",
+    answer:true,
+    explanation:"○ 甲状腺シンチグラフィはバセドウ病や機能性結節（プランマー病）の診断に有用です。" },
+  { category:"検査手技", type:"mc",
+    text:"甲状腺エコー検査を行う際の患者の体位として最も適切なのはどれですか？",
+    choices:["座位","腹臥位（うつ伏せ）","仰臥位で頸部を軽く伸展した体位","側臥位（横向き）"],
+    answer:2,
+    explanation:"仰臥位で頸部を軽く伸展した体位が正解です。肩の下に枕を入れて頸部を伸展させると観察しやすくなります。" }
+];
+
+// ===========================
+// 中級問題データ（30問）
+// ===========================
+const questionsMid = [
+  { category:"基礎・生理", type:"mc",
+    text:"甲状腺ホルモンの末梢における脱ヨウ素化について正しいものはどれですか？",
+    choices:["T4はT3への変換は行われない","T4の外環脱ヨウ素化によりT3（活性型）が生成される","T3はT4より生物活性が低い","脱ヨウ素化は甲状腺内だけで行われる"],
+    answer:1,
+    explanation:"T4の外環脱ヨウ素化によりT3（活性型）が生成されるが正解です。T4の内環脱ヨウ素化ではrT3（不活性型）が生成されます。" },
+  { category:"基礎・生理", type:"ox",
+    text:"TBG（サイロキシン結合グロブリン）は妊娠中や経口避妊薬内服中に増加し、総T4・総T3が高値になることがある。",
+    answer:true,
+    explanation:"○ エストロゲンはTBGを増加させます。総T4・T3は高値になりますが、FT4・FT3は正常範囲内に保たれます。" },
+  { category:"基礎・生理", type:"mc",
+    text:"視床下部－下垂体－甲状腺軸において、TRHの作用として正しいものはどれですか？",
+    choices:["甲状腺に直接作用してT4を分泌させる","下垂体前葉に作用してTSHの合成・分泌を促進する","TSHの分泌を抑制する","副腎皮質ホルモンの分泌を促進する"],
+    answer:1,
+    explanation:"下垂体前葉に作用してTSHの合成・分泌を促進するが正解です。視床下部→TRH→下垂体前葉→TSH→甲状腺→T3・T4の系列が基本です。" },
+  { category:"基礎・生理", type:"ox",
+    text:"ソマトスタチンやドーパミンはTSHの分泌を促進する作用がある。",
+    answer:false,
+    explanation:"× ソマトスタチンとドーパミンはTSHの分泌を抑制します。TRHがTSH分泌を促進し、これらが抑制するバランスが重要です。" },
+  { category:"基礎・生理", type:"mc",
+    text:"ウォルフ・チャイコフ効果（Wolff-Chaikoff effect）とはどれですか？",
+    choices:["ヨウ素過剰により一時的に甲状腺ホルモン合成が抑制される現象","TSHが過剰になると甲状腺が萎縮する現象","T3がT4より強く受容体に結合する現象","甲状腺ホルモンが骨代謝を促進する現象"],
+    answer:0,
+    explanation:"ヨウ素過剰により一時的に甲状腺ホルモン合成が抑制される現象が正解です。術前のルゴール液投与に関連します。" },
+  { category:"基礎・生理", type:"ox",
+    text:"甲状腺ホルモンは核内受容体に結合して遺伝子発現を調節する。",
+    answer:true,
+    explanation:"○ 甲状腺ホルモン（特にT3）は細胞内に入り核内受容体（TR）に結合し、標的遺伝子の転写を調節します。" },
+  { category:"基礎・生理", type:"mc",
+    text:"甲状腺ホルモンの作用として誤っているものはどれですか？",
+    choices:["基礎代謝の促進","心拍数の増加","インスリン分泌の直接抑制","骨の成熟促進（小児期）"],
+    answer:2,
+    explanation:"インスリン分泌の直接抑制が誤りです。甲状腺ホルモンはインスリン分泌を直接抑制する作用はありません。" },
+  { category:"基礎・生理", type:"ox",
+    text:"新生児マス・スクリーニングでは甲状腺機能低下症（クレチン症）の早期発見のためTSHが測定される。",
+    answer:true,
+    explanation:"○ 先天性甲状腺機能低下症は早期発見・治療しないと知的障害を来します。生後4〜6日にかかとから採血するスクリーニングが行われています。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"サブクリニカル（潜在性）甲状腺機能低下症の検査値として正しいものはどれですか？",
+    choices:["TSH正常、FT4低値","TSH高値、FT4正常","TSH低値、FT4正常","TSH高値、FT4低値"],
+    answer:1,
+    explanation:"TSH高値、FT4正常が正解です。潜在性甲状腺機能低下症はTSHのみ高値でFT4は正常範囲内にある状態です。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"抗TPO抗体は橋本病だけでなくバセドウ病でも陽性になることがある。",
+    answer:true,
+    explanation:"○ 抗TPO抗体は橋本病で高率に陽性ですが、バセドウ病でも約50〜80%で陽性になります。鑑別にはTRAbが重要です。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"甲状腺がんの組織型とその腫瘍マーカーの組み合わせで正しいものはどれですか？",
+    choices:["乳頭がん → カルシトニン","髄様がん → サイログロブリン（Tg）","髄様がん → カルシトニン・CEA","未分化がん → TSH"],
+    answer:2,
+    explanation:"髄様がん → カルシトニン・CEAが正解です。乳頭がん・濾胞がんはサイログロブリン（Tg）が術後モニタリングに使用されます。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"ビオチン（ビタミンH）を高用量摂取していると、甲状腺ホルモン検査の結果に干渉し、偽性の異常値が出ることがある。",
+    answer:true,
+    explanation:"○ ビオチン干渉は重要な問題です。競合法ではTSH偽低値・FT4偽高値が生じることがあります。検査前に摂取状況を確認することが重要です。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"甲状腺エコーで悪性を示唆するエコー所見の組み合わせはどれですか？",
+    choices:["高エコー・整形辺縁・卵円形","低エコー・不整形辺縁・微細石灰化","等エコー・平滑辺縁・後方エコー増強","嚢胞性・薄い隔壁・無血流"],
+    answer:1,
+    explanation:"低エコー・不整形辺縁・微細石灰化が正解です。確定診断にはFNABが必要です。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"甲状腺機能亢進症ではコレステロール値が低下し、機能低下症では上昇することが多い。",
+    answer:true,
+    explanation:"○ 甲状腺ホルモンはLDLコレステロールの代謝を促進します。甲状腺機能と脂質代謝は密接に関連しています。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"ヘテロフィル抗体が存在する場合、免疫測定法による甲状腺ホルモン測定にどのような影響がありますか？",
+    choices:["測定値に影響しない","偽高値または偽低値が生じる可能性がある","必ず高値になる","必ず低値になる"],
+    answer:1,
+    explanation:"偽高値または偽低値が生じる可能性があるが正解です。臨床像と乖離した値が出た場合に疑います。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"甲状腺全摘後の甲状腺がん患者では、TSHを意図的に低値に維持するTSH抑制療法が行われることがある。",
+    answer:true,
+    explanation:"○ TSH抑制療法は分化型甲状腺がんの再発予防が目的です。レボチロキシンを通常より多めに投与してTSHを抑制します。" },
+  { category:"疾患", type:"mc",
+    text:"バセドウ病の治療法として正しい組み合わせはどれですか？",
+    choices:["抗甲状腺薬・放射性ヨウ素治療・手術","インスリン投与・ステロイド・手術","抗生物質・放射線照射・化学療法","利尿剤・β遮断薬・透析"],
+    answer:0,
+    explanation:"抗甲状腺薬・放射性ヨウ素治療・手術が正解です。日本では抗甲状腺薬が第一選択です。" },
+  { category:"疾患", type:"ox",
+    text:"橋本病の患者全員が甲状腺機能低下症になるわけではなく、長期間にわたり甲状腺機能が正常に保たれることもある。",
+    answer:true,
+    explanation:"○ 橋本病があっても機能が正常な状態が続く場合もあります。定期的なTSH・FT4のモニタリングが重要です。" },
+  { category:"疾患", type:"mc",
+    text:"甲状腺クリーゼ（thyroid storm）について正しいものはどれですか？",
+    choices:["甲状腺機能低下症の最重症型","甲状腺機能亢進症が急激に悪化した生命危機状態","甲状腺の感染症による緊急状態","橋本病の急性増悪"],
+    answer:1,
+    explanation:"甲状腺機能亢進症が急激に悪化した生命危機状態が正解です。高熱・頻脈・意識障害・心不全などを来す致死的緊急症です。" },
+  { category:"疾患", type:"ox",
+    text:"甲状腺乳頭がんはリンパ節転移が多いが、遠隔転移（肺・骨）は少なく、予後は比較的良好である。",
+    answer:true,
+    explanation:"○ 乳頭がんはリンパ節転移率が高いですが、10年生存率は95%以上と予後良好です。" },
+  { category:"疾患", type:"mc",
+    text:"プランマー病（中毒性結節性甲状腺腫）の特徴として正しいものはどれですか？",
+    choices:["TRAbが高値で自己免疫が原因","TSHと無関係に自律的にホルモンを産生する機能性結節が原因","若年女性に多くバセドウ病と同じ病態","甲状腺全体が均一に腫大する"],
+    answer:1,
+    explanation:"TSHと無関係に自律的にホルモンを産生する機能性結節が原因が正解です。シンチグラフィで「ホットノジュール」として描出されます。" },
+  { category:"疾患", type:"ox",
+    text:"粘液水腫昏睡（myxedema coma）は甲状腺機能低下症の最重症型で、低体温・意識障害・低換気を特徴とする救急疾患である。",
+    answer:true,
+    explanation:"○ 死亡率が高い救急疾患です。甲状腺ホルモンの緊急投与と集中治療が必要です。" },
+  { category:"疾患", type:"mc",
+    text:"甲状腺未分化がんの特徴として正しいものはどれですか？",
+    choices:["予後が良く外来治療で管理できる","放射性ヨウ素治療が非常に有効","進行が極めて速く予後不良で、診断後の生存期間が数ヶ月のことが多い","リンパ節転移はなく局所に留まる"],
+    answer:2,
+    explanation:"進行が極めて速く予後不良が正解です。放射性ヨウ素治療は無効で、集学的治療が試みられます。" },
+  { category:"疾患", type:"ox",
+    text:"リーデル甲状腺炎は甲状腺が線維組織に置き換わる稀な疾患で、周囲組織への浸潤により気管・食道の圧迫症状を来すことがある。",
+    answer:true,
+    explanation:"○ IgG4関連疾患との関連も指摘されています。硬い腫瘤が気管・食道・反回神経を圧迫することがあります。" },
+  { category:"検査手技", type:"mc",
+    text:"甲状腺エコーで用いる探触子（プローブ）の周波数として適切なものはどれですか？",
+    choices:["1〜3MHz（低周波）","7〜15MHz（高周波リニアプローブ）","3〜5MHz（腹部用コンベックスプローブ）","20〜30MHz（超高周波）"],
+    answer:1,
+    explanation:"7〜15MHz（高周波リニアプローブ）が正解です。甲状腺は体表に近い臓器のため高周波プローブを使用します。" },
+  { category:"検査手技", type:"ox",
+    text:"甲状腺FNABで採取した検体は、パパニコロウ染色やギムザ染色などで細胞診標本を作成して評価する。",
+    answer:true,
+    explanation:"○ パパニコロウ染色（核の評価）やギムザ染色（細胞質・コロイドの評価）で染色して評価します。" },
+  { category:"検査手技", type:"mc",
+    text:"甲状腺エコーで血流評価に用いるモードはどれですか？",
+    choices:["Bモード","Mモード","カラードプラ・パワードプラ","エラストグラフィ"],
+    answer:2,
+    explanation:"カラードプラ・パワードプラが正解です。バセドウ病では甲状腺全体の血流増加（inferno pattern）が特徴的です。" },
+  { category:"検査手技", type:"ox",
+    text:"甲状腺エコーで結節の大きさを計測する際は、長径・短径・前後径の3方向を計測してその積から体積を算出することがある。",
+    answer:true,
+    explanation:"○ 結節体積の計算式：体積(mL)＝長径×短径×前後径×π/6（≒0.524）が用いられます。" },
+  { category:"検査手技", type:"mc",
+    text:"甲状腺シンチグラフィで「コールドノジュール（cold nodule）」とはどれですか？",
+    choices:["放射性ヨウ素を正常より多く取り込む結節","放射性ヨウ素をほとんど取り込まない結節","正常と同程度に取り込む結節","カルシウムが沈着した結節"],
+    answer:1,
+    explanation:"放射性ヨウ素をほとんど取り込まない結節が正解です。悪性の可能性が相対的に高いとされますが、良性嚢胞もコールドになります。" },
+  { category:"検査手技", type:"ox",
+    text:"甲状腺エコーガイド下FNABは、触診困難な小結節や深部結節でもリアルタイムに針先を確認しながら穿刺できる利点がある。",
+    answer:true,
+    explanation:"○ エコーガイド下FNABは針先をリアルタイムに確認できるため、小結節でも正確に穿刺できます。検体不適率の低下にも貢献します。" }
+];
+
+// ===========================
+// 上級問題データ（30問）
+// ===========================
+const questionsAdv = [
+  { category:"基礎・生理", type:"mc",
+    text:"脱ヨウ素酵素（deiodinase）のうち、D2型（2型脱ヨウ素酵素）の主な役割はどれですか？",
+    choices:["T3を不活性型rT3に変換する","末梢組織でT4をT3に変換し、局所のT3濃度を調節する","甲状腺内でヨウ素をサイログロブリンに取り込む","TSHの分泌を直接抑制する"],
+    answer:1,
+    explanation:"末梢組織でT4をT3に変換し、局所のT3濃度を調節するが正解です。D1型は主に肝臓・腎臓で全身のT3産生に寄与し、D3型はT3・T4を不活性化します。" },
+  { category:"基礎・生理", type:"ox",
+    text:"甲状腺ホルモン受容体（TR）にはTRαとTRβのサブタイプがあり、心臓ではTRαが主に発現している。",
+    answer:true,
+    explanation:"○ TRαは心臓・骨格筋・脳・骨に多く発現し、TRβは肝臓・腎臓・下垂体・聴覚に多く発現します。" },
+  { category:"基礎・生理", type:"mc",
+    text:"重症疾患（non-thyroidal illness syndrome）で見られる典型的な甲状腺ホルモンパターンはどれですか？",
+    choices:["TSH↑、FT4↑、T3↑","TSH正常〜低値、FT4正常〜低値、T3低値、rT3高値","TSH低値、FT4高値、T3高値","TSH高値、FT4低値、T3低値"],
+    answer:1,
+    explanation:"TSH正常〜低値、FT4正常〜低値、T3低値、rT3高値が正解です。T4→T3変換が障害されT3低値・rT3高値となります。甲状腺疾患との鑑別が重要です。" },
+  { category:"基礎・生理", type:"ox",
+    text:"甲状腺ホルモン輸送タンパクのうち、量は少ないが親和性が最も高いのはトランスサイレチン（TTR）である。",
+    answer:false,
+    explanation:"× 親和性が最も高いのはTBG（サイロキシン結合グロブリン）です。TBGは量・親和性ともに主要な輸送タンパクです。" },
+  { category:"基礎・生理", type:"mc",
+    text:"甲状腺ペルオキシダーゼ（TPO）の主な役割はどれですか？",
+    choices:["T3を核内受容体に輸送する","ヨウ素の酸化・サイログロブリンへのヨウ素化・カップリング反応を触媒する","TSHを甲状腺細胞表面の受容体から切り離す","甲状腺ホルモンをリソソームで分解する"],
+    answer:1,
+    explanation:"ヨウ素の酸化・サイログロブリンへのヨウ素化・カップリング反応を触媒するが正解です。抗TPO抗体はこのTPOを標的とした自己抗体です。" },
+  { category:"基礎・生理", type:"ox",
+    text:"甲状腺ホルモンはミトコンドリアに作用して熱産生（カロリジェネシス）を促進し、基礎体温を上昇させる。",
+    answer:true,
+    explanation:"○ 甲状腺ホルモンはミトコンドリアの酸化的リン酸化の効率を低下させ、エネルギーを熱として放散させます。" },
+  { category:"基礎・生理", type:"mc",
+    text:"ナトリウム・ヨウ素共輸送体（NIS）について正しいものはどれですか？",
+    choices:["甲状腺以外の組織には存在しない","ヨウ素を血液から甲状腺細胞内に能動輸送し、TSHにより発現が調節される","ヨウ素をATPを使わず甲状腺細胞外に排出する","抗TPO抗体によって直接阻害される"],
+    answer:1,
+    explanation:"ヨウ素を血液から甲状腺細胞内に能動輸送し、TSHにより発現が調節されるが正解です。放射性ヨウ素治療の標的となる分子です。" },
+  { category:"基礎・生理", type:"ox",
+    text:"甲状腺ホルモン不応症（RTH）ではTSH・FT4・FT3がともに高値を示すことがあり、甲状腺機能亢進症との鑑別が必要である。",
+    answer:true,
+    explanation:"○ 甲状腺ホルモン受容体の変異により末梢での感受性が低下し、TSHが高値またはnormalでFT4・FT3が高値となります。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"マクロTSH血症とはどのような状態ですか？",
+    choices:["TSHが正常の10倍以上に上昇した状態","TSHがIgGと結合した大分子複合体として血中に存在し、測定値が偽高値となる状態","TSHが全く測定できない状態","TSH産生腺腫による持続的TSH過剰分泌状態"],
+    answer:1,
+    explanation:"TSHがIgGと結合した大分子複合体として血中に存在し、測定値が偽高値となる状態が正解です。臨床的に甲状腺機能は正常ですが治療不要です。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"甲状腺細胞診の報告カテゴリーでは、カテゴリーⅤ（悪性疑い）やカテゴリーⅥ（悪性）では外科的切除が推奨される。",
+    answer:true,
+    explanation:"○ 日本甲状腺学会の甲状腺細胞診報告様式（6段階）のⅤ・Ⅵは手術適応となります。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"免疫測定法によるTSH測定において「フック効果（hook effect）」が問題になるのはどのような場合ですか？",
+    choices:["TSHが極端に低値の場合","TSHが極端に高値の場合にサンドイッチ法で偽低値が出る現象","抗TPO抗体が陽性の場合","ビオチンが低値の場合"],
+    answer:1,
+    explanation:"TSHが極端に高値の場合にサンドイッチ法で偽低値が出る現象が正解です。希釈再検が有用です。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"アミオダロン（抗不整脈薬）は高濃度のヨウ素を含むため、甲状腺機能亢進症・低下症のいずれも引き起こす可能性がある。",
+    answer:true,
+    explanation:"○ アミオダロンは重量の約37%がヨウ素で構成されます。FT4高値・T3低値を示すことがあります。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"TRAb（TSH受容体抗体）の測定法のうち、甲状腺刺激活性を直接評価できる方法はどれですか？",
+    choices:["RIA（放射免疫測定法）によるTRAb測定","ECLIA（電気化学発光免疫測定法）によるTRAb測定","バイオアッセイ（TSAb：甲状腺刺激抗体）","ウェスタンブロット法"],
+    answer:2,
+    explanation:"バイオアッセイ（TSAb）が正解です。TSAbはTSH受容体を発現した細胞を用いてcAMP産生を測定し、甲状腺刺激活性を直接評価します。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"甲状腺濾胞がんは術前の細胞診（FNAB）では良悪性の確定診断が困難で、被膜浸潤・血管浸潤の評価には術後の病理組織診断が必要である。",
+    answer:true,
+    explanation:"○ 濾胞がんの悪性診断基準は「被膜浸潤」と「血管浸潤」であり、これは細胞診では評価できません。" },
+  { category:"検査値・ホルモン", type:"mc",
+    text:"甲状腺がん術後のサイログロブリン（Tg）モニタリングにおいて、抗Tg抗体陽性の場合どのような問題がありますか？",
+    choices:["Tgが偽高値となり再発を見逃すリスクがある","Tg測定に干渉して偽低値となり再発を見逃すリスクがある","抗Tg抗体があると測定できないため別のマーカーが必要","抗Tg抗体陽性はTg測定に影響しない"],
+    answer:1,
+    explanation:"Tg測定に干渉して偽低値となり再発を見逃すリスクがあるが正解です。抗Tg抗体の経時的変化自体が再発の指標になることがあります。" },
+  { category:"検査値・ホルモン", type:"ox",
+    text:"甲状腺エラストグラフィは組織の硬さを評価する手法で、悪性結節は良性結節より硬い傾向がある。",
+    answer:true,
+    explanation:"○ エラストグラフィは組織の弾性（硬さ）をカラーマップで表示します。補助的な診断手法として位置付けられています。" },
+  { category:"疾患", type:"mc",
+    text:"MEN2A（多発性内分泌腫瘍症2A型）で合併する疾患の組み合わせとして正しいものはどれですか？",
+    choices:["甲状腺乳頭がん・下垂体腺腫・副甲状腺機能亢進症","甲状腺髄様がん・褐色細胞腫・副甲状腺機能亢進症","甲状腺濾胞がん・膵島腫瘍・下垂体腺腫","甲状腺未分化がん・副腎皮質がん・カルチノイド"],
+    answer:1,
+    explanation:"甲状腺髄様がん・褐色細胞腫・副甲状腺機能亢進症が正解です。MEN2AはRET癌遺伝子の変異によります。" },
+  { category:"疾患", type:"ox",
+    text:"IgG4関連甲状腺炎はリーデル甲状腺炎や橋本病の一部にIgG4陽性形質細胞浸潤を認める疾患概念で、ステロイドが有効なことが多い。",
+    answer:true,
+    explanation:"○ IgG4関連疾患は全身の様々な臓器に線維化・IgG4陽性形質細胞浸潤を来す疾患群です。" },
+  { category:"疾患", type:"mc",
+    text:"バセドウ病眼症（甲状腺眼症）の活動性評価に用いるCAS（Clinical Activity Score）について正しいものはどれですか？",
+    choices:["眼球突出度のみで評価するスコア","眼痛・結膜充血・浮腫など炎症所見を点数化し、3点以上を活動期とする","TRAbの値で算出するスコア","視力のみで評価し低下があれば活動期とする"],
+    answer:1,
+    explanation:"眼痛・結膜充血・浮腫など炎症所見を点数化し、3点以上を活動期とするが正解です。活動期ではステロイドパルス療法・放射線照射が有効です。" },
+  { category:"疾患", type:"ox",
+    text:"甲状腺乳頭がんのBRAF V600E変異は予後不良因子であり、この変異を標的とした分子標的療法も開発されている。",
+    answer:true,
+    explanation:"○ BRAF V600E変異は乳頭がんの約40〜60%に認められる最頻の遺伝子変異で、リンパ節転移・再発リスクと関連します。" },
+  { category:"疾患", type:"mc",
+    text:"抗甲状腺薬（チアマゾール）の重篤な副作用として最も注意すべきものはどれですか？",
+    choices:["高血糖","無顆粒球症","高カリウム血症","視力障害"],
+    answer:1,
+    explanation:"無顆粒球症が正解です。発熱・咽頭痛・口内炎が初期症状です。症状出現時は直ちに受診するよう患者指導が重要です。" },
+  { category:"疾患", type:"ox",
+    text:"橋本病合併甲状腺がんでは、乳頭がんの合併頻度が高く、抗TPO抗体高値はむしろ予後良好因子の可能性が示唆されている。",
+    answer:true,
+    explanation:"○ 橋本病合併甲状腺乳頭がんは再発率が低く予後良好との報告があります。ただし定期的なエコーフォローが重要です。" },
+  { category:"疾患", type:"mc",
+    text:"放射性ヨウ素（¹³¹I）治療の絶対禁忌はどれですか？",
+    choices:["高齢者","妊婦・授乳婦","抗甲状腺薬で効果不十分な場合","甲状腺腫が大きい場合"],
+    answer:1,
+    explanation:"妊婦・授乳婦が正解です。放射性ヨウ素は胎児の甲状腺に集積して機能低下症を引き起こすため絶対禁忌です。" },
+  { category:"疾患", type:"ox",
+    text:"甲状腺濾胞がんはFNABで術前に良悪性鑑別ができないため、凍結切片（術中迅速病理）でも確定診断は困難なことが多い。",
+    answer:true,
+    explanation:"○ 濾胞がんの診断基準の評価には多数の永久切片の詳細な観察が必要で、凍結切片では困難です。" },
+  { category:"検査手技", type:"mc",
+    text:"甲状腺細胞診の検体が「検体不適正（カテゴリーⅠ）」と判定される基準として適切なものはどれですか？",
+    choices:["細胞が1個でも観察されれば適正","良性濾胞細胞が6群以上・各群10個以上観察されることが目安","コロイドのみでも適正検体となる","血液成分が含まれていれば適正"],
+    answer:1,
+    explanation:"良性濾胞細胞が6群以上・各群10個以上観察されることが目安が正解です。細胞数不十分の場合は検体不適正となり再穿刺が推奨されます。" },
+  { category:"検査手技", type:"ox",
+    text:"甲状腺エコーで「砂粒様石灰化（psammoma body）」は甲状腺乳頭がんに特徴的な所見であり、悪性を強く示唆する。",
+    answer:true,
+    explanation:"○ 砂粒様石灰化（微細石灰化）は甲状腺乳頭がんの特徴的所見です。エコーでは1〜2mm以下の点状高エコーとして認められます。" },
+  { category:"検査手技", type:"mc",
+    text:"術中神経モニタリング（IONM）が甲状腺手術で行われる主な目的はどれですか？",
+    choices:["甲状腺ホルモンの術中分泌量を測定するため","反回神経の機能をリアルタイムにモニタリングし、損傷を防ぐため","術中出血量を減らすため","副甲状腺の位置を同定するため"],
+    answer:1,
+    explanation:"反回神経の機能をリアルタイムにモニタリングし、損傷を防ぐためが正解です。反回神経損傷は声帯麻痺・嗄声の原因となります。" },
+  { category:"検査手技", type:"ox",
+    text:"甲状腺エコーにおけるACR-TIRADSはエコー所見をスコア化して悪性リスクを層別化し、FNABの適応決定に役立てるシステムである。",
+    answer:true,
+    explanation:"○ ACR-TIRADSはAmerican College of Radiologyが提唱した甲状腺結節のリスク層別化システムです。" },
+  { category:"検査手技", type:"mc",
+    text:"術後低カルシウム血症（テタニー）が甲状腺手術後に生じる主な原因はどれですか？",
+    choices:["甲状腺ホルモンが急激に低下するため","副甲状腺の損傷・摘出によりPTHが低下するため","カルシトニンが過剰分泌されるため","術後の食欲低下によりカルシウム摂取が減るため"],
+    answer:1,
+    explanation:"副甲状腺の損傷・摘出によりPTHが低下するためが正解です。術後はCaとPTHを定期的に測定し、低Ca血症症状に注意が必要です。" },
+  { category:"検査手技", type:"ox",
+    text:"液状化細胞診（LBC：Liquid-Based Cytology）は従来の塗抹細胞診と比較して、細胞の保存性が高く標準化された標本作製が可能である。",
+    answer:true,
+    explanation:"○ LBCは専用の固定液に入れて保存・輸送し、均一な薄層標本を作製します。残余検体でのDNA解析・遺伝子検査にも応用できます。" }
+];
+
+// ===========================
+// レベル設定
+// ===========================
+const levelConfig = {
+  beginner: {
+    name: "初級レベル", badge: "🟢 BASIC",
+    color: "#38a169", badgeBg: "#c6f6d5", badgeColor: "#276749",
+    icon: "🌱",
+    desc: "新人・学生向け｜基礎・解剖・ホルモン・疾患・検査手技",
+    questions: questionsBeg
+  },
+  middle: {
+    name: "中級レベル", badge: "🔵 INTERMEDIATE",
+    color: "#3182ce", badgeBg: "#bee3f8", badgeColor: "#2b6cb0",
+    icon: "📘",
+    desc: "経験2〜5年向け｜ホルモン代謝・検査干渉・疾患管理",
+    questions: questionsMid
+  },
+  advanced: {
+    name: "上級レベル", badge: "🟣 ADVANCED",
+    color: "#805ad5", badgeBg: "#e9d8fd", badgeColor: "#6b21a8",
+    icon: "🔬",
+    desc: "ベテラン・専門向け｜分子機序・測定干渉・最新知見",
+    questions: questionsAdv
+  }
+};
+
+// ===========================
+// 状態管理
+// ===========================
+let currentLevel   = null;
+let currentIndex   = 0;
+let score          = 0;
+let userAnswers    = [];
+let userName       = "";      // ログイン中のユーザー名（追加機能①）
+let historyFrom    = "login"; // スコア履歴画面をどの画面から開いたか（戻り先の記憶）
+let currentQuestions = [];    // 今回のクイズで実際に出題する問題リスト（固定問題＋管理画面の公開問題）
+
+// ===========================
+// 画面切り替え
+// ===========================
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ===========================
+// レベル選択
+// ===========================
+function selectLevel(level) {
+  currentLevel = level;
+  const cfg = levelConfig[level];
+
+  document.getElementById("start-icon").textContent  = cfg.icon;
+  document.getElementById("start-badge").textContent = cfg.badge;
+  document.getElementById("start-badge").style.background = cfg.badgeBg;
+  document.getElementById("start-badge").style.color      = cfg.badgeColor;
+  document.getElementById("start-title").textContent =
+    "甲状腺 知識チェック\n" + cfg.name;
+  document.getElementById("start-info").innerHTML =
+    "<strong>対象：</strong>" + cfg.desc + "<br>" +
+    "<strong>問題数：</strong>全" + countQuizQuestions(level) + "問（○×形式・4択形式 混合）<br>" +
+    "<strong>制限時間：</strong>なし";
+
+  showScreen("screen-start");
+}
+
+function goMenu() {
+  updateMenuCounts();       // レベル選択に戻るたびに出題数を最新にする
+  showScreen("screen-menu");
+}
+
+// ===========================
+// クイズ開始
+// ===========================
+function startQuiz() {
+  currentIndex = 0;
+  score        = 0;
+  userAnswers  = [];
+  // ★ 管理画面で「公開」にした問題を加えた出題リストをここで作る
+  currentQuestions = getQuizQuestions(currentLevel);
+  showScreen("screen-quiz");
+  showQuestion();
+}
+
+// ===========================
+// 問題表示
+// ===========================
+function showQuestion() {
+  const cfg = levelConfig[currentLevel];
+  const q   = currentQuestions[currentIndex];   // ★ 固定問題＋管理画面の公開問題
+  const total = currentQuestions.length;
+
+  document.getElementById("q-number").textContent   = "Q" + (currentIndex + 1);
+  document.getElementById("q-category").textContent = q.category;
+  document.getElementById("q-type").textContent     = q.type === "ox" ? "○×問題" : "4択問題";
+  document.getElementById("q-level-badge").textContent   = cfg.badge;
+  document.getElementById("q-level-badge").style.background = cfg.badgeBg;
+  document.getElementById("q-level-badge").style.color      = cfg.badgeColor;
+  document.getElementById("q-text").textContent = q.text;
+
+  const pct = (currentIndex / total) * 100;
+  document.getElementById("progress-fill").style.width = pct + "%";
+  document.getElementById("progress-text").textContent = "問題 " + (currentIndex + 1) + " / " + total;
+  document.getElementById("score-text").textContent    = "正解：" + score + "問";
+
+  // フィードバックリセット
+  const fb = document.getElementById("feedback");
+  fb.className = "feedback";
+  document.getElementById("fb-result").textContent = "";
+  document.getElementById("fb-exp").textContent    = "";
+  document.getElementById("next-btn").className   = "next-btn";
+
+  // エリア切り替え
+  const oxArea     = document.getElementById("ox-area");
+  const choiceArea = document.getElementById("choice-area");
+
+  if (q.type === "ox") {
+    oxArea.style.display     = "flex";
+    choiceArea.style.display = "none";
+    const bm = document.getElementById("btn-maru");
+    const bb = document.getElementById("btn-batsu");
+    bm.disabled = false; bb.disabled = false;
+    bm.className = "ox-btn btn-maru";
+    bb.className = "ox-btn btn-batsu";
+  } else {
+    oxArea.style.display     = "none";
+    choiceArea.style.display = "flex";
+    choiceArea.innerHTML = "";
+    q.choices.forEach((c, i) => {
+      const btn = document.createElement("button");
+      btn.className   = "choice-btn";
+      btn.textContent = ["A","B","C","D"][i] + "．" + c;
+      btn.onclick     = () => answerMC(i);
+      choiceArea.appendChild(btn);
+    });
+  }
+}
+
+// ===========================
+// ○×回答
+// ===========================
+function answerOX(userAnswer) {
+  const q = currentQuestions[currentIndex];
+  const isCorrect = (userAnswer === q.answer);
+  if (isCorrect) score++;
+  userAnswers.push({ question: q.text, correct: isCorrect });
+
+  const bm = document.getElementById("btn-maru");
+  const bb = document.getElementById("btn-batsu");
+  bm.disabled = true; bb.disabled = true;
+  (q.answer === true ? bm : bb).classList.add("hl-correct");
+
+  showFeedback(isCorrect, q.explanation);
+}
+
+// ===========================
+// 4択回答
+// ===========================
+function answerMC(sel) {
+  const q = currentQuestions[currentIndex];
+  const isCorrect = (sel === q.answer);
+  if (isCorrect) score++;
+  userAnswers.push({ question: q.text, correct: isCorrect });
+
+  document.querySelectorAll(".choice-btn").forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add("sel-correct");
+    else if (i === sel) btn.classList.add("sel-wrong");
+  });
+
+  showFeedback(isCorrect, q.explanation);
+}
+
+// ===========================
+// フィードバック
+// ===========================
+function showFeedback(isCorrect, explanation) {
+  const fb = document.getElementById("feedback");
+  fb.classList.add("show", isCorrect ? "correct" : "wrong");
+  document.getElementById("fb-result").textContent = isCorrect ? "✅ 正解！" : "❌ 不正解…";
+  document.getElementById("fb-exp").textContent    = explanation;
+
+  const nb = document.getElementById("next-btn");
+  nb.classList.add("show");
+  const total = currentQuestions.length;
+  nb.textContent = currentIndex === total - 1 ? "📊 結果を見る" : "次の問題へ →";
+}
+
+// ===========================
+// 次の問題
+// ===========================
+function nextQuestion() {
+  currentIndex++;
+  const total = currentQuestions.length;
+  if (currentIndex >= total) showResult();
+  else showQuestion();
+}
+
+// ===========================
+// 結果表示
+// ===========================
+function showResult() {
+  showScreen("screen-result");
+  const cfg   = levelConfig[currentLevel];
+  const total = currentQuestions.length;
+  const pct   = score / total;
+  const pctPx = Math.round(pct * 100);
+
+  // ★ 追加機能②：この回の成績を localStorage に記録する
+  saveScore(currentLevel, score, total);
+
+  document.getElementById("result-denom").textContent = "/ " + total + "問 正解";
+  document.getElementById("result-score").textContent = score;
+  document.getElementById("result-pct").textContent   = pctPx + "%";
+  document.getElementById("result-badge").textContent       = cfg.badge;
+  document.getElementById("result-badge").style.background  = cfg.badgeBg;
+  document.getElementById("result-badge").style.color       = cfg.badgeColor;
+
+  // バーアニメーション
+  setTimeout(() => {
+    document.getElementById("result-bar").style.width      = pctPx + "%";
+    document.getElementById("result-bar").style.background = cfg.color;
+  }, 100);
+
+  let icon, title, msg;
+  if (pct === 1.0)     { icon="🏆"; title="パーフェクト！";   msg="全問正解！\n"+cfg.name+"を完全にマスターしました。"; }
+  else if (pct >= 0.8) { icon="🎉"; title="よくできました！"; msg="基礎はしっかり身についています。\n間違えた問題を復習して次のレベルへ！"; }
+  else if (pct >= 0.6) { icon="👍"; title="もう少し！";       msg="半分以上正解です。\n間違えた問題を教科書で確認しましょう。"; }
+  else                  { icon="📚"; title="復習しましょう！"; msg="基礎をもう一度確認しましょう。\n繰り返し挑戦することが大切です！"; }
+
+  document.getElementById("result-icon").textContent  = icon;
+  document.getElementById("result-title").textContent = title;
+  document.getElementById("result-msg").textContent   = msg;
+
+  const reviewEl = document.getElementById("review-items");
+  reviewEl.innerHTML = "";
+  userAnswers.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "review-item";
+    div.innerHTML =
+      '<span class="review-mark">' + (item.correct ? "✅" : "❌") + '</span>' +
+      '<span class="review-q">Q' + (i+1) + '：' + item.question + '</span>';
+    reviewEl.appendChild(div);
+  });
+}
+
+// ===========================
+// 同じレベルをもう一度
+// ===========================
+function restartSameLevel() { selectLevel(currentLevel); }
+
+// ==========================================================
+// ここから下は追加機能①（ログイン）と②（スコア保存）のコード
+// ==========================================================
+
+// ----------------------------------------------------------
+// localStorage で使うキー名
+//   localStorage は「文字列だけ」を保存できるブラウザの保存領域。
+//   ブラウザを閉じても消えないので、名前やスコアの保存に向いている。
+// ----------------------------------------------------------
+const KEY_USER_NAME = "thyroidQuiz.userName"; // 最後にログインした名前
+const KEY_SCORES    = "thyroidQuiz.scores";   // スコア履歴（JSON文字列の配列）
+
+// ===========================
+// 追加機能①：ログイン処理
+// ===========================
+function doLogin() {
+  const input = document.getElementById("input-name");
+  // trim() で前後の空白を削除。空白だけの入力も「未入力」として扱う
+  const name  = input.value.trim();
+
+  // --- 入力チェック：未入力ならエラーメッセージを出してここで終了 ---
+  if (name === "") {
+    showLoginError("お名前を入力してください。");
+    input.focus();
+    return;
+  }
+
+  // --- ログイン成功：名前を保存してレベル選択画面へ ---
+  userName = name;
+  clearLoginError();
+
+  // 次回起動時に名前を復元できるよう localStorage にも保存しておく
+  try {
+    localStorage.setItem(KEY_USER_NAME, userName);
+  } catch (e) {
+    // プライベートモード等で保存できない場合でもアプリは続行できるようにする
+    console.warn("名前を保存できませんでした:", e);
+  }
+
+  renderMenuUser();       // メニュー画面の「ようこそ○○さん」を更新
+  updateMenuCounts();      // 管理画面で追加された問題も出題数に反映する
+  showScreen("screen-menu");
+}
+
+// エラーメッセージを表示する
+function showLoginError(message) {
+  const errEl = document.getElementById("login-error");
+  errEl.textContent = "⚠ " + message;
+  errEl.classList.add("show");
+  document.getElementById("input-name").classList.add("input-error");
+}
+
+// エラーメッセージを消す（入力し直したときに呼ばれる）
+function clearLoginError() {
+  document.getElementById("login-error").classList.remove("show");
+  document.getElementById("input-name").classList.remove("input-error");
+}
+
+// メニュー画面のユーザー名表示を更新する
+function renderMenuUser() {
+  document.getElementById("menu-user-name").textContent = userName;
+}
+
+// ログアウト：ログイン画面に戻る（保存済みスコアは消さない）
+function logout() {
+  userName = "";
+  const input = document.getElementById("input-name");
+  input.value = "";
+  clearLoginError();
+  showScreen("screen-login");
+  input.focus();
+}
+
+// ===========================
+// 追加機能②：スコアの保存と読み込み
+// ===========================
+
+// 保存されているスコア履歴を配列で取り出す
+// （まだ何も保存されていない場合や、壊れたデータの場合は空配列を返す）
+function loadScores() {
+  try {
+    const raw = localStorage.getItem(KEY_SCORES);
+    if (!raw) return [];
+    const list = JSON.parse(raw);       // 文字列 → 配列に戻す
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    console.warn("スコア履歴を読み込めませんでした:", e);
+    return [];
+  }
+}
+
+// スコア履歴の配列を localStorage に書き込む
+function persistScores(list) {
+  try {
+    localStorage.setItem(KEY_SCORES, JSON.stringify(list)); // 配列 → 文字列
+  } catch (e) {
+    console.warn("スコア履歴を保存できませんでした:", e);
+  }
+}
+
+// クイズ終了時に「名前・レベル・正解数・日時」を1件追加する
+function saveScore(levelKey, correctCount, totalCount) {
+  const cfg  = levelConfig[levelKey];
+  const now  = new Date();
+
+  const record = {
+    name:      userName || "ゲスト",   // 名前
+    levelKey:  levelKey,               // レベルのキー（beginner / middle / advanced）
+    levelName: cfg.name,               // レベル名（初級レベル など）
+    score:     correctCount,           // 正解数
+    total:     totalCount,             // 出題数
+    dateText:  formatDateTime(now),    // 表示用の日時文字列
+    timestamp: now.getTime()           // 並べ替え用の数値（ミリ秒）
+  };
+
+  const list = loadScores();
+  list.push(record);
+  persistScores(list);
+}
+
+// 日時を「2026/08/30 14:05」の形式に整える
+function formatDateTime(d) {
+  const p = (n) => String(n).padStart(2, "0"); // 1桁の数字を 01 のように2桁にする
+  return d.getFullYear() + "/" + p(d.getMonth() + 1) + "/" + p(d.getDate()) +
+         " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+// ===========================
+// 追加機能②：スコア履歴画面
+// ===========================
+
+// 履歴画面を開く（from には戻り先の画面名を渡す："login" または "menu"）
+function openHistory(from) {
+  historyFrom = from;
+  renderHistory();
+  showScreen("screen-history");
+}
+
+// 履歴画面から元の画面へ戻る
+function backFromHistory() {
+  showScreen(historyFrom === "menu" ? "screen-menu" : "screen-login");
+}
+
+// 保存済みスコアを一覧として描画する
+function renderHistory() {
+  const listEl  = document.getElementById("history-list");
+  const countEl = document.getElementById("history-count");
+  const records = loadScores();
+
+  // 新しい順（日時の大きい順）に並べ替える
+  records.sort((a, b) => b.timestamp - a.timestamp);
+
+  countEl.textContent = "全 " + records.length + " 件の記録";
+  listEl.innerHTML    = "";
+
+  // --- 1件もない場合の表示 ---
+  if (records.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "history-empty";
+    empty.textContent = "まだ記録がありません。\nクイズを最後まで解くと、ここに結果が保存されます。";
+    empty.style.whiteSpace = "pre-line"; // 文中の改行をそのまま表示する
+    listEl.appendChild(empty);
+    return;
+  }
+
+  // --- 1件ずつカードを作って並べる ---
+  records.forEach((r) => {
+    const cfg = levelConfig[r.levelKey]; // レベルごとの色・バッジを取得
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    // バッジ部分（レベル色を反映）
+    const badgeStyle = cfg
+      ? "background:" + cfg.badgeBg + ";color:" + cfg.badgeColor + ";"
+      : "background:var(--border);color:var(--muted);";
+    const scoreColor = cfg ? cfg.color : "var(--primary)";
+
+    // textContent ではなく innerHTML を使うため、名前は必ずエスケープする
+    item.innerHTML =
+      '<div class="history-main">' +
+        '<div class="history-name">👤 ' + escapeHTML(r.name) + '</div>' +
+        '<div class="history-meta">' +
+          '<span class="level-badge" style="' + badgeStyle + '">' + escapeHTML(r.levelName) + '</span>' +
+          '<span class="history-date">🕒 ' + escapeHTML(r.dateText) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="history-score" style="color:' + scoreColor + ';">' +
+        r.score + '<small>/ ' + r.total + '問</small>' +
+      '</div>';
+
+    listEl.appendChild(item);
+  });
+}
+
+// 履歴をすべて削除する（誤操作を防ぐため確認ダイアログを出す）
+function clearHistory() {
+  if (!confirm("保存されているスコア履歴をすべて削除します。よろしいですか？")) return;
+  try {
+    localStorage.removeItem(KEY_SCORES);
+  } catch (e) {
+    console.warn("スコア履歴を削除できませんでした:", e);
+  }
+  renderHistory(); // 削除後の状態（0件）を描画し直す
+}
+
+// 名前などの文字列を HTML に埋め込むときの安全対策（タグとして解釈させない）
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ===========================
+// 初期化：ページを開いたときに一度だけ実行される
+// ===========================
+function init() {
+  // 前回ログインした名前があれば入力欄に入れておく（毎回打ち直さなくてよい）
+  let savedName = "";
+  try {
+    savedName = localStorage.getItem(KEY_USER_NAME) || "";
+  } catch (e) {
+    console.warn("名前を読み込めませんでした:", e);
+  }
+
+  const input = document.getElementById("input-name");
+  input.value = savedName;
+  input.focus();
+
+  // 最初に表示するのはログイン画面
+  showScreen("screen-login");
+}
+
+
+// ==========================================================
+// ここから下は「管理画面」機能のコード
+// ==========================================================
+
+// ----------------------------------------------------------
+// 管理画面で作った問題の保存先キー
+//   スコア履歴と同じく localStorage に JSON 文字列で保存する
+// ----------------------------------------------------------
+const KEY_ADMIN_QUESTIONS = "thyroidQuiz.adminQuestions";
+
+// 管理者アカウント（※教材用のかんたんな認証です。
+//   HTMLの中にIDとパスワードが書かれているので、本当の機密情報は守れません。
+//   実務ではサーバー側で認証する必要があります）
+const ADMIN_ID = "admin";
+const ADMIN_PW = "thyroid2026";
+
+let isAdmin          = false;          // 管理者としてログイン中かどうか
+let editingId        = null;           // 編集中の問題ID（新規追加のときは null）
+let editForm         = {};             // 編集フォームの一時的な選択状態
+let adminBackScreen  = "screen-login"; // 管理画面を抜けたときに戻る画面
+
+// ==========================================================
+// 管理問題データの読み書き
+// ==========================================================
+
+// 保存されている管理問題を配列で取り出す
+// （未保存や壊れたデータのときは空配列を返す）
+function loadAdminQuestions() {
+  try {
+    const raw = localStorage.getItem(KEY_ADMIN_QUESTIONS);
+    if (!raw) return [];
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    console.warn("管理問題を読み込めませんでした:", e);
+    return [];
+  }
+}
+
+// 管理問題の配列を localStorage に書き込む
+function persistAdminQuestions(list) {
+  try {
+    localStorage.setItem(KEY_ADMIN_QUESTIONS, JSON.stringify(list));
+  } catch (e) {
+    console.warn("管理問題を保存できませんでした:", e);
+    alert("保存に失敗しました。ブラウザの設定（プライベートモードなど）をご確認ください。");
+  }
+}
+
+// 問題を区別するためのIDを作る（重複しないよう時刻＋乱数を組み合わせる）
+function makeQuestionId() {
+  return "q" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+// ==========================================================
+// ★ クイズ本体との連携
+//   もともとの固定問題に、管理画面の「公開中」の問題を足して出題リストを作る。
+//   非公開の問題は published が false なので、ここで除外される。
+// ==========================================================
+function getQuizQuestions(level) {
+  const base  = levelConfig[level].questions;   // 最初から用意されている問題
+  const extra = loadAdminQuestions().filter(q => q.level === level && q.published);
+  return base.concat(extra);                    // 固定問題のうしろに追加問題を連結
+}
+
+// そのレベルの出題数（画面に「全○問」と表示するために使う）
+function countQuizQuestions(level) {
+  return getQuizQuestions(level).length;
+}
+
+// レベル選択画面の「全○問」の表示を最新の数に更新する
+function updateMenuCounts() {
+  ["beginner", "middle", "advanced"].forEach(key => {
+    document.getElementById("menu-count-" + key).textContent = countQuizQuestions(key);
+  });
+}
+
+// ==========================================================
+// 管理者ログイン
+// ==========================================================
+
+// 管理者ログイン画面を開く（from には呼び出し元の画面："login" または "menu"）
+function openAdminLogin(from) {
+  adminBackScreen = (from === "menu") ? "screen-menu" : "screen-login";
+
+  // すでにログイン済みなら、認証を飛ばして管理メニューへ
+  if (isAdmin) { backToAdminMenu(); return; }
+
+  document.getElementById("admin-id").value = "";
+  document.getElementById("admin-pw").value = "";
+  clearAdminError();
+  showScreen("screen-admin-login");
+  document.getElementById("admin-id").focus();
+}
+
+// ID・パスワードを照合してログインする
+function adminLogin() {
+  const id = document.getElementById("admin-id").value.trim();
+  const pw = document.getElementById("admin-pw").value;
+
+  // --- 入力チェック ---
+  if (id === "" || pw === "") {
+    showAdminError("管理者IDとパスワードを入力してください。");
+    return;
+  }
+  // --- 認証チェック ---
+  if (id !== ADMIN_ID || pw !== ADMIN_PW) {
+    showAdminError("管理者IDまたはパスワードが違います。");
+    return;
+  }
+
+  // --- 認証成功 ---
+  isAdmin = true;
+  clearAdminError();
+  document.getElementById("admin-pw").value = ""; // パスワードは画面に残さない
+  backToAdminMenu();
+}
+
+// 管理者ログアウト（元の画面へ戻る）
+function adminLogout() {
+  isAdmin = false;
+  showScreen(adminBackScreen);
+}
+
+// 管理画面を抜けて、元のクイズ画面へ戻る
+function exitAdmin() {
+  showScreen(adminBackScreen);
+}
+
+// 管理メニューへ戻る（そのとき集計も描き直す）
+function backToAdminMenu() {
+  renderAdminStats();
+  showScreen("screen-admin-menu");
+}
+
+// 管理者ログインのエラー表示／消去
+function showAdminError(message) {
+  const el = document.getElementById("admin-error");
+  el.textContent = "⚠ " + message;
+  el.classList.add("show");
+}
+function clearAdminError() {
+  document.getElementById("admin-error").classList.remove("show");
+}
+
+// 管理メニューの集計（登録数・公開数・非公開数）を表示する
+function renderAdminStats() {
+  const list = loadAdminQuestions();
+  const pub  = list.filter(q => q.published).length;
+  document.getElementById("stat-total").textContent = list.length;
+  document.getElementById("stat-pub").textContent   = pub;
+  document.getElementById("stat-unpub").textContent = list.length - pub;
+}
+
+// ==========================================================
+// 問題一覧画面
+// ==========================================================
+
+// 一覧画面を開く
+function openAdminList() {
+  renderAdminList();
+  showScreen("screen-admin-list");
+}
+
+// 登録済み問題をレベル別に描画する
+function renderAdminList() {
+  const body = document.getElementById("admin-list-body");
+  const list = loadAdminQuestions();
+
+  document.getElementById("admin-list-sub").textContent =
+    "管理画面から登録した問題：全 " + list.length + " 件";
+  body.innerHTML = "";
+
+  // --- 1件も登録がない場合 ---
+  if (list.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "history-empty";
+    empty.style.whiteSpace = "pre-line";
+    empty.textContent = "まだ問題が登録されていません。\n「新しい問題を追加」から作成してください。";
+    body.appendChild(empty);
+    return;
+  }
+
+  // --- 初級 → 中級 → 上級 の順にまとめて表示 ---
+  ["beginner", "middle", "advanced"].forEach(levelKey => {
+    const cfg  = levelConfig[levelKey];
+    const rows = list.filter(q => q.level === levelKey);
+
+    // レベルの見出し（もともとの固定問題の数もあわせて表示する）
+    const head = document.createElement("div");
+    head.className = "admin-level-head";
+    head.innerHTML =
+      '<span class="level-badge" style="background:' + cfg.badgeBg + ';color:' + cfg.badgeColor + ';">' +
+        cfg.badge +
+      '</span>' +
+      '<span class="admin-level-name">' + cfg.name + '</span>' +
+      '<span class="admin-level-note">固定問題 ' + cfg.questions.length + '問 ＋ 追加 ' + rows.length + '問</span>';
+    body.appendChild(head);
+
+    // このレベルの追加問題が0件のとき
+    if (rows.length === 0) {
+      const none = document.createElement("div");
+      none.className = "history-empty";
+      none.style.padding = "14px 12px";
+      none.textContent = "このレベルの追加問題はまだありません。";
+      body.appendChild(none);
+      return; // forEach の中の return は「次のレベルへ進む」という意味
+    }
+
+    // 1問ずつカードを作る
+    rows.forEach(q => {
+      const item = document.createElement("div");
+      // 非公開の問題には is-hidden を付けて薄く表示する
+      item.className = "qitem" + (q.published ? "" : " is-hidden");
+
+      item.innerHTML =
+        '<div class="qitem-top">' +
+          '<span class="tag ' + (q.published ? "tag-pub" : "tag-unpub") + '">' +
+            (q.published ? "公開中" : "非公開") +
+          '</span>' +
+          '<span class="q-type-badge">' + (q.type === "ox" ? "○×問題" : "4択問題") + '</span>' +
+          '<span class="q-category">' + escapeHTML(q.category) + '</span>' +
+        '</div>' +
+        '<div class="qitem-text">' + escapeHTML(q.text) + '</div>' +
+        '<div class="qitem-actions">' +
+          '<button class="mini-action" data-act="edit">✏️ 編集</button>' +
+          '<button class="mini-action" data-act="toggle">' +
+            (q.published ? "🙈 非公開にする" : "👁 公開する") +
+          '</button>' +
+          '<button class="mini-action act-del" data-act="del">🗑 削除</button>' +
+        '</div>';
+
+      // onclick は HTML文字列に埋め込まず、JavaScript側で割り当てる（そのほうが安全）
+      item.querySelector('[data-act="edit"]').onclick   = () => openAdminEdit(q.id);
+      item.querySelector('[data-act="toggle"]').onclick = () => togglePublished(q.id);
+      item.querySelector('[data-act="del"]').onclick    = () => deleteAdminQuestion(q.id);
+
+      body.appendChild(item);
+    });
+  });
+}
+
+// 公開／非公開を切り替える
+function togglePublished(id) {
+  const list = loadAdminQuestions();
+  const q    = list.find(x => x.id === id);
+  if (!q) return;
+
+  q.published = !q.published;   // true ⇔ false を反転させる
+  persistAdminQuestions(list);
+  renderAdminList();            // 一覧を描き直して見た目に反映
+}
+
+// 問題を削除する（取り消せないので確認ダイアログを出す）
+function deleteAdminQuestion(id) {
+  const list = loadAdminQuestions();
+  const q    = list.find(x => x.id === id);
+  if (!q) return;
+
+  if (!confirm("この問題を削除します。よろしいですか？\n\n" + q.text)) return;
+
+  // 削除対象「以外」だけを残した新しい配列を作る
+  persistAdminQuestions(list.filter(x => x.id !== id));
+  renderAdminList();
+}
+
+// ==========================================================
+// 問題追加・編集画面
+// ==========================================================
+
+// 編集画面を開く（id が null なら新規追加、id があればその問題の編集）
+function openAdminEdit(id) {
+  editingId = id;
+  const q = id ? loadAdminQuestions().find(x => x.id === id) : null;
+
+  if (q) {
+    // --- 編集モード：保存されている値をフォームに読み込む ---
+    editForm = { type: q.type, level: q.level, answer: q.answer, published: q.published };
+    document.getElementById("edit-category").value    = q.category;
+    document.getElementById("edit-text").value        = q.text;
+    document.getElementById("edit-explanation").value = q.explanation;
+    for (let i = 0; i < 4; i++) {
+      document.getElementById("edit-choice-" + i).value = (q.choices && q.choices[i]) ? q.choices[i] : "";
+    }
+    document.getElementById("edit-title").textContent = "✏️ 問題の編集";
+    document.getElementById("edit-sub").textContent   = "内容を修正して保存してください";
+  } else {
+    // --- 新規追加モード：初期値を入れる ---
+    editForm = { type: "ox", level: "beginner", answer: true, published: true };
+    document.getElementById("edit-category").value    = "";
+    document.getElementById("edit-text").value        = "";
+    document.getElementById("edit-explanation").value = "";
+    for (let i = 0; i < 4; i++) document.getElementById("edit-choice-" + i).value = "";
+    document.getElementById("edit-title").textContent = "➕ 問題の追加";
+    document.getElementById("edit-sub").textContent   = "必要な項目を入力して保存してください";
+  }
+
+  clearEditError();
+  renderEditForm();
+  showScreen("screen-admin-edit");
+}
+
+// 出題形式を切り替える
+function setEditType(type) {
+  if (editForm.type === type) return;   // 同じボタンを押しただけなら何もしない
+  editForm.type   = type;
+  // 形式が変わると正解の持ち方も変わる（○×は true/false、4択は 0〜3）ので初期化する
+  editForm.answer = (type === "ox") ? true : 0;
+  clearEditError();
+  renderEditForm();
+}
+
+// レベルを切り替える
+function setEditLevel(level) {
+  editForm.level = level;
+  renderEditForm();
+}
+
+// 正解を設定する（○×なら true/false、4択なら 0〜3）
+function setEditAnswer(value) {
+  editForm.answer = value;
+  renderEditForm();
+}
+
+// 公開／非公開スイッチを切り替える
+function toggleEditPublished() {
+  editForm.published = !editForm.published;
+  renderEditForm();
+}
+
+// editForm の内容を画面の見た目に反映する
+function renderEditForm() {
+  // --- 出題形式ボタン ---
+  document.getElementById("seg-type-ox").classList.toggle("selected", editForm.type === "ox");
+  document.getElementById("seg-type-mc").classList.toggle("selected", editForm.type === "mc");
+
+  // --- レベルボタン ---
+  ["beginner", "middle", "advanced"].forEach(key => {
+    document.getElementById("seg-level-" + key)
+            .classList.toggle("selected", editForm.level === key);
+  });
+
+  // --- 選択肢欄は4択のときだけ表示 ---
+  document.getElementById("edit-choices-group").style.display =
+    (editForm.type === "mc") ? "block" : "none";
+
+  // --- 正解の選び方も形式にあわせて出し分ける ---
+  document.getElementById("edit-answer-ox").style.display = (editForm.type === "ox") ? "flex" : "none";
+  document.getElementById("edit-answer-mc").style.display = (editForm.type === "mc") ? "flex" : "none";
+
+  document.getElementById("seg-ans-true").classList.toggle("selected",  editForm.answer === true);
+  document.getElementById("seg-ans-false").classList.toggle("selected", editForm.answer === false);
+  for (let i = 0; i < 4; i++) {
+    document.getElementById("seg-ans-" + i).classList.toggle("selected", editForm.answer === i);
+  }
+
+  // --- 公開スイッチ ---
+  document.getElementById("edit-switch").classList.toggle("on", editForm.published);
+  document.getElementById("switch-label").textContent =
+    editForm.published ? "公開する（クイズに出題）" : "非公開（クイズに出題しない）";
+}
+
+// 入力内容をチェックして localStorage に保存する
+function saveAdminQuestion() {
+  const category    = document.getElementById("edit-category").value.trim();
+  const text        = document.getElementById("edit-text").value.trim();
+  const explanation = document.getElementById("edit-explanation").value.trim();
+  // 選択肢A〜Dをまとめて配列にする
+  const choices     = [0, 1, 2, 3].map(i => document.getElementById("edit-choice-" + i).value.trim());
+
+  // --- 入力チェック：足りない項目があればエラーを出して中断 ---
+  if (category === "")    { showEditError("テーマを入力してください。"); return; }
+  if (text === "")        { showEditError("問題文を入力してください。"); return; }
+  if (explanation === "") { showEditError("解説を入力してください。"); return; }
+  if (editForm.type === "mc" && choices.some(c => c === "")) {
+    showEditError("4択形式では、選択肢A〜Dをすべて入力してください。");
+    return;
+  }
+
+  // --- 保存するデータを組み立てる ---
+  //     既存問題と同じ形（category / type / text / answer / explanation / choices）に
+  //     そろえておくと、クイズ本体のコードをそのまま使い回せる
+  const record = {
+    id:          editingId || makeQuestionId(),
+    level:       editForm.level,
+    type:        editForm.type,
+    category:    category,
+    text:        text,
+    choices:     (editForm.type === "mc") ? choices : [],
+    answer:      editForm.answer,
+    explanation: explanation,
+    published:   editForm.published,
+    updatedAt:   formatDateTime(new Date())
+  };
+
+  const list = loadAdminQuestions();
+  const idx  = list.findIndex(q => q.id === record.id);
+  if (idx >= 0) list[idx] = record;  // 既存の問題を上書き
+  else          list.push(record);   // 新しい問題として追加
+
+  persistAdminQuestions(list);
+  clearEditError();
+  alert(idx >= 0 ? "問題を更新しました。" : "問題を追加しました。");
+  openAdminList();                   // 保存後は一覧画面へ
+}
+
+// 編集をやめて一覧画面へ戻る
+function cancelAdminEdit() {
+  clearEditError();
+  openAdminList();
+}
+
+// 編集画面のエラー表示／消去
+function showEditError(message) {
+  const el = document.getElementById("edit-error");
+  el.textContent = "⚠ " + message;
+  el.classList.add("show");
+}
+function clearEditError() {
+  document.getElementById("edit-error").classList.remove("show");
+}
+
+// ===========================
+// 初期化の実行（ページを開いたときに一度だけ）
+// ===========================
+init();
+</script>
+</body>
+</html>
